@@ -34,5 +34,3 @@ end
 
 FindRecursive("smh/shared", "LUA", AddCSPath)
 FindRecursive("smh/client", "LUA", AddCSPath)
-
-Msg("SMH server initialized.\n")

@@ -1,6 +1,5 @@
-Stop Motion Helper
+Garry's Mod Movie Helper
 ==================
-Stop Motion Helper is a tool for Garry's Mod designed to make stop motion animation easier and more manageable.
-It can also be used for recorded animation, but it is mainly designed around stop motion.
+Just my personal fork of the great [Stop Motion Helper](https://steamcommunity.com/sharedfiles/filedetails/?id=111895870) created by Winded.
 
-If you have any bug fixes or improvements you have made, feel free to make a pull request. However, before you do, please make sure your code works, is clean and clear (identation, variable names that are understandable, and comments for not-so-understandable parts) and uses reactive paradigm like the rest of the addon.
+**Movie Helper** is a tool for Garry's Mod designed to animate ragdolls & elements. Unlike it's model, it is not meant for Stop Motion.

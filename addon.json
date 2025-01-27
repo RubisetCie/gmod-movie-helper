@@ -1,8 +1,13 @@
 {
-    "ignore": [],
-    "tags": [
-        "movie"
-    ],
-    "title": "Stop Motion Helper",
-    "type": "tool"
+	"title": "Rubis Movie Helper",
+	"type": "tool",
+	"tags": [
+		"movie"
+	],
+	"ignore": [
+		"*.md",
+		"docs/*",
+		".git/*",
+		".github/*"
+	]
 }
