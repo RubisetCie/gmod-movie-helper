@@ -16,6 +16,7 @@ include("server/worldkeyframes_manager.lua")
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("client.lua")
 
+local file = file
 local function FindRecursive(name, path, func)
     local files, dirs = file.Find(name .. "/*", path);
     for _, dir in pairs(dirs) do
@@ -27,9 +28,7 @@ local function FindRecursive(name, path, func)
 end
 
 local function AddCSPath(path)
-    if string.sub(path, -4) == ".lua" then
-        AddCSLuaFile(path);
-    end
+    AddCSLuaFile(path);
 end
 
 FindRecursive("smh/shared", "LUA", AddCSPath)
