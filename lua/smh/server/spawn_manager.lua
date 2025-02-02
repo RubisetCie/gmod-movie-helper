@@ -1,6 +1,9 @@
 local Active = {}
 local MGR = {}
 
+local IsValid = IsValid
+local undo = undo
+
 MGR.OffsetPos, MGR.OffsetAng, MGR.OffsetMode = {}, {}, {}
 
 MGR.OriginData = {}

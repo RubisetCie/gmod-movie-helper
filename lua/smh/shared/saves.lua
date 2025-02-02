@@ -1,3 +1,8 @@
+local IsValid = IsValid
+local string = string
+local file = file
+local util = util
+
 local function GetModelName(entity)
     local mdl = string.Split(entity:GetModel(), "/");
     mdl = mdl[#mdl];
@@ -58,8 +63,7 @@ local function ProcessKeyframes(keyframes, entityMappedKeyframes, properties, pl
         end
         table.insert(entityMappedKeyframes[entity].Frames, {
             Position = keyframe.Frame,
-            EaseIn = table.Copy(keyframe.EaseIn),
-            EaseOut = table.Copy(keyframe.EaseOut),
+            Ease = table.Copy(keyframe.Ease),
             EntityData = table.Copy(keyframe.Modifiers),
         })
     end

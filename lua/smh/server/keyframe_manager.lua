@@ -29,16 +29,14 @@ local function Record(keyframe, player, entity, modnames)
         if not data then continue end
         recorded = true
         keyframe.Modifiers[name] = data
-        keyframe.EaseIn[name] = keyframe.EaseIn[name] and keyframe.EaseIn[name] or 0
-        keyframe.EaseOut[name] = keyframe.EaseOut[name] and keyframe.EaseOut[name] or 0
+        keyframe.Ease[name] = keyframe.Ease[name] and keyframe.Ease[name] or 0
     end
     return recorded
 end
 
 local function ClearModifier(keyframe, modname)
     keyframe.Modifiers[modname] = nil
-    keyframe.EaseIn[modname] = nil
-    keyframe.EaseOut[modname] = nil
+    keyframe.Ease[modname] = nil
 end
 
 hook.Add("EntityRemoved", "SMHKeyframesEntityRemoved", function(entity)
@@ -119,8 +117,7 @@ function MGR.Create(player, entities, frame, timeline)
 
             keyframe = SMH.KeyframeData:New(player, entity)
             keyframe.Frame = frame
-            keyframe.EaseIn["world"] = 0
-            keyframe.EaseOut["world"] = 0
+            keyframe.Ease["world"] = 0
             keyframe.Modifiers["world"] = {
                 Console = "",
                 Push = "",
@@ -145,18 +142,16 @@ function MGR.Update(player, keyframeIds, updateData, timeline)
         local modnames = player == keyframe.Entity and {"world"} or SMH.Properties.Players[player].TimelineSetting.TimelineMods[timeline]
         local updateableFields = {
             "Frame",
-            "EaseIn",
-            "EaseOut",
+            "Ease",
         }
         for _, field in pairs(updateableFields) do
             if updateData[id][field] then
                 if field == "Frame" then
                     if updateData[id][field] == keyframe.Frame then continue end
-                    local remainmods, EaseIn, EaseOut, frame = table.Copy(keyframe.Modifiers), table.Copy(keyframe.EaseIn), table.Copy(keyframe.EaseOut), updateData[id][field]
+                    local remainmods, Ease, frame = table.Copy(keyframe.Modifiers), table.Copy(keyframe.Ease), updateData[id][field]
                     for _, name in ipairs(modnames) do
                         remainmods[name] = nil
-                        EaseIn[name] = nil
-                        EaseOut[name] = nil
+                        Ease[name] = nil
                     end
 
                     if next(remainmods) then -- if there are any modifiers remaining, then we create another keyframe that will stay there
@@ -167,8 +162,7 @@ function MGR.Update(player, keyframeIds, updateData, timeline)
                         end
                         remainkeyframe.Frame = keyframe.Frame
                         remainkeyframe.Modifiers = remainmods
-                        remainkeyframe.EaseIn = EaseIn
-                        remainkeyframe.EaseOut = EaseOut
+                        remainkeyframe.Ease = Ease
                     end
 
                     movingkeyframes[keyframe] = frame
@@ -191,8 +185,7 @@ function MGR.Update(player, keyframeIds, updateData, timeline)
 
                 if not keyframe.Modifiers[name] then
                     keyframe.Modifiers[name] = data
-                    keyframe.EaseIn[name] = replacekey.EaseIn[name]
-                    keyframe.EaseOut[name] = replacekey.EaseOut[name]
+                    keyframe.Ease[name] = replacekey.Ease[name]
                 end
             end
             SMH.KeyframeData:Delete(player, replacekey.ID)
@@ -215,11 +208,10 @@ function MGR.Copy(player, keyframeIds, frame, timeline)
         local keyframe = SMH.KeyframeData.Players[player].Keyframes[keyframeId]
         local modnames = player == keyframe.Entity and {"world"} or SMH.Properties.Players[player].TimelineSetting.TimelineMods[timeline]
 
-        local EaseIn, EaseOut, Mods = {}, {}, {}
+        local Ease, Mods = {}, {}
         for _, name in ipairs(modnames) do
             if not keyframe.Modifiers[name] then continue end
-            EaseIn[name] = keyframe.EaseIn[name]
-            EaseOut[name] = keyframe.EaseOut[name]
+            Ease[name] = keyframe.Ease[name]
             if istable(keyframe.Modifiers[name]) then
                 Mods[name] = table.Copy(keyframe.Modifiers[name]) -- in case if we copy things like world keyframes
             else
@@ -228,8 +220,7 @@ function MGR.Copy(player, keyframeIds, frame, timeline)
         end
 
         local copiedKeyframe = SMH.KeyframeData:New(player, keyframe.Entity)
-        copiedKeyframe.EaseIn = EaseIn
-        copiedKeyframe.EaseOut = EaseOut
+        copiedKeyframe.Ease = Ease
         copiedKeyframe.Modifiers = Mods
 
         movingkeyframes[copiedKeyframe] = frame[id]
@@ -242,8 +233,7 @@ function MGR.Copy(player, keyframeIds, frame, timeline)
             for name, data in pairs(replacekey.Modifiers) do
                 if not keyframe.Modifiers[name] then
                     keyframe.Modifiers[name] = data
-                    keyframe.EaseIn[name] = replacekey.EaseIn[name]
-                    keyframe.EaseOut[name] = replacekey.EaseOut[name]
+                    keyframe.Ease[name] = replacekey.Ease[name]
                 end
             end
             SMH.KeyframeData:Delete(player, replacekey.ID)
@@ -291,16 +281,14 @@ function MGR.ImportSave(player, entity, serializedKeyframes, entityProperties)
 
         if keyframe ~= nil then
             for name, _ in pairs(skf.EntityData) do
-                keyframe.EaseIn[name] = type(skf.EaseIn) == "table" and skf.EaseIn[name] or skf.EaseIn
-                keyframe.EaseOut[name] = type(skf.EaseOut) == "table" and skf.EaseOut[name] or skf.EaseOut
+                keyframe.Ease[name] = type(skf.Ease) == "table" and skf.Ease[name] or skf.Ease
                 keyframe.Modifiers[name] = skf.EntityData[name]
             end
         else
             local keyframe = SMH.KeyframeData:New(player, entity)
             keyframe.Frame = skf.Position
             for name, _ in pairs(skf.EntityData) do
-                keyframe.EaseIn[name] = type(skf.EaseIn) == "table" and skf.EaseIn[name] or skf.EaseIn
-                keyframe.EaseOut[name] = type(skf.EaseOut) == "table" and skf.EaseOut[name] or skf.EaseOut
+                keyframe.Ease[name] = type(skf.Ease) == "table" and skf.Ease[name] or skf.Ease
                 keyframe.Modifiers[name] = skf.EntityData[name]
             end
         end

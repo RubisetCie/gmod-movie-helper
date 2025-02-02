@@ -1,6 +1,4 @@
-local smh_startatone = CreateClientConVar("smh_startatone", 0, true, false, nil, 0, 1)
 CreateClientConVar("smh_currentpreset", "default", true, false)
-
 
 concommand.Add("+smh_menu", function()
     SMH.Controller.OpenMenu()
@@ -30,44 +28,14 @@ concommand.Add("smh_previous", function()
     SMH.Controller.SetFrame(pos)
 end)
 
-concommand.Add("+smh_playback", function()
-    SMH.Controller.StartPlayback()
-end)
-
-concommand.Add("-smh_playback", function()
-    SMH.Controller.StopPlayback()
+concommand.Add("smh_playback", function()
+    if not SMH.Controller.IsPlaying() then
+        SMH.Controller.StartPlayback()
+    else
+        SMH.Controller.StopPlayback()
+    end
 end)
 
 concommand.Add("smh_quicksave", function()
     SMH.Controller.QuickSave()
-end)
-
-concommand.Add("smh_makejpeg", function(pl, cmd, args)
-    local startframe
-    if args[1] then
-        startframe = args[1] - smh_startatone:GetInt()
-    else
-        startframe = 0
-    end
-    if startframe < 0 then startframe = 0 end
-    if startframe < SMH.State.PlaybackLength then
-        SMH.Controller.ToggleRendering(false, startframe)
-    else
-        print("Specified starting frame is outside of the current Frame Count!")
-    end
-end)
-
-concommand.Add("smh_makescreenshot", function(pl, cmd, args)
-    local startframe
-    if args[1] then
-        startframe = args[1] - smh_startatone:GetInt()
-    else
-        startframe = 0
-    end
-    if startframe < 0 then startframe = 0 end
-    if startframe < SMH.State.PlaybackLength then
-        SMH.Controller.ToggleRendering(true, startframe)
-    else
-        print("Specified starting frame is outside of the current Frame Count!")
-    end
 end)

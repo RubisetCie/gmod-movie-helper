@@ -1,20 +1,28 @@
 local PANEL = {}
 
+local Color = Color
+local ClearColour = Color(225, 225, 225)
+local DarkColour = Color(32, 40, 24, 215)
+local MiddleColour = Color(175, 175, 175)
+local LightColour = Color(220, 220, 220)
+
+local RoundedBox = draw.RoundedBox
+
 function PANEL:Init()
 
-    self:SetTitle("Stop Motion Helper")
+    self:SetTitle("Rubis Movie Helper")
     self:SetSize(ScrW(), 90)
     self:SetPos(0, ScrH() - self:GetTall())
     self:SetDraggable(false)
     self:ShowCloseButton(false)
     self:SetDeleteOnClose(false)
-    self:ShowCloseButton(false)
 
     self._sendKeyframeChanges = true
+    self._createTime = SysTime()
 
     self.FramePanel = vgui.Create("SMHFramePanel", self)
 
-    self.FramePointer = self.FramePanel:CreateFramePointer(Color(255, 255, 255), self.FramePanel:GetTall() / 4, true)
+    self.FramePointer = self.FramePanel:CreateFramePointer(ClearColour, self.FramePanel:GetTall() / 4, true)
 
     self.TimelinesBase = vgui.Create("Panel", self)
 
@@ -37,36 +45,35 @@ function PANEL:Init()
         self:OnRequestStateUpdate({ PlaybackLength = tonumber(value) })
     end
     self.PlaybackLengthControl.Label = vgui.Create("DLabel", self)
-    self.PlaybackLengthControl.Label:SetText("Frame count")
+    self.PlaybackLengthControl.Label:SetText("Frame Count")
     self.PlaybackLengthControl.Label:SizeToContents()
 
     self.Easing = vgui.Create("Panel", self)
 
-    self.EaseInControl = vgui.Create("DNumberWang", self.Easing)
-    self.EaseInControl:SetNumberStep(0.1)
-    self.EaseInControl:SetMinMax(0, 1)
-    self.EaseInControl:SetDecimals(1)
-    self.EaseInControl.OnValueChanged = function(_, value)
+    self.EaseControl = vgui.Create("DComboBox", self.Easing)
+    self.EaseControl:AddChoice("No ease", 0, true)
+    self.EaseControl:AddChoice("Ease out", 1)
+    self.EaseControl:AddChoice("Ease in", 2)
+    self.EaseControl:AddChoice("Ease in/out", 3)
+    self.EaseControl:AddChoice("Interpolate", 4)
+    self.EaseControl.OnSelect = function(_, _, _, data)
         if self._sendKeyframeChanges then
-            self:OnRequestKeyframeUpdate({ EaseIn = tonumber(value) })
+            self:OnRequestKeyframeUpdate({ Ease = data })
         end
     end
-    self.EaseInControl.Label = vgui.Create("DLabel", self.Easing)
-    self.EaseInControl.Label:SetText("Ease in")
-    self.EaseInControl.Label:SizeToContents()
+    self.EaseControl.Label = vgui.Create("DLabel", self.Easing)
+    self.EaseControl.Label:SetText("Easing")
+    self.EaseControl.Label:SizeToContents()
 
-    self.EaseOutControl = vgui.Create("DNumberWang", self.Easing)
-    self.EaseOutControl:SetNumberStep(0.1)
-    self.EaseOutControl:SetMinMax(0, 1)
-    self.EaseOutControl:SetDecimals(1)
-    self.EaseOutControl.OnValueChanged = function(_, value)
-        if self._sendKeyframeChanges then
-            self:OnRequestKeyframeUpdate({ EaseOut = tonumber(value) })
+    self.PlayButton = vgui.Create("DButton", self)
+    self.PlayButton:SetText("Play / Stop")
+    self.PlayButton.DoClick = function()
+        if not SMH.Controller.IsPlaying() then
+            SMH.Controller.StartPlayback()
+        else
+            SMH.Controller.StopPlayback()
         end
     end
-    self.EaseOutControl.Label = vgui.Create("DLabel", self.Easing)
-    self.EaseOutControl.Label:SetText("Ease out")
-    self.EaseOutControl.Label:SizeToContents()
 
     self.RecordButton = vgui.Create("DButton", self)
     self.RecordButton:SetText("Record")
@@ -96,10 +103,8 @@ function PANEL:PerformLayout(width, height)
 
     self.BaseClass.PerformLayout(self, width, height)
 
-    self:SetTitle("Stop Motion Helper")
-
     self.FramePanel:SetPos(5, 40)
-    self.FramePanel:SetSize(width - 5 * 2, 45)
+    self.FramePanel:SetSize(width - 10, 45)
 
     self.FramePointer.VerticalPosition = self.FramePanel:GetTall() / 4
 
@@ -113,38 +118,42 @@ function PANEL:PerformLayout(width, height)
     local sizeX, sizeY = self.PlaybackRateControl.Label:GetSize()
     self.PlaybackRateControl.Label:SetRelativePos(self.PlaybackRateControl, -(sizeX) - 5, 3)
 
-    self.PlaybackLengthControl:SetPos(460, 2)
+    self.PlaybackLengthControl:SetPos(470, 2)
     self.PlaybackLengthControl:SetSize(50, 20)
     sizeX, sizeY = self.PlaybackLengthControl.Label:GetSize()
     self.PlaybackLengthControl.Label:SetRelativePos(self.PlaybackLengthControl, -(sizeX) - 5, 3)
 
-    self.Easing:SetPos(540, 0)
-    self.Easing:SetSize(250, 30)
+    self.Easing:SetPos(520, 0)
+    self.Easing:SetSize(150, 30)
 
-    self.EaseInControl:SetPos(60, 2)
-    self.EaseInControl:SetSize(50, 20)
-    sizeX, sizeY = self.EaseInControl.Label:GetSize()
-    self.EaseInControl.Label:SetRelativePos(self.EaseInControl, -(sizeX) - 5, 3)
+    self.EaseControl:SetPos(60, 2)
+    self.EaseControl:SetSize(120, 20)
+    sizeX, sizeY = self.EaseControl.Label:GetSize()
+    self.EaseControl.Label:SetRelativePos(self.EaseControl, -(sizeX) - 5, 3)
 
-    self.EaseOutControl:SetPos(160, 2)
-    self.EaseOutControl:SetSize(50, 20)
-    sizeX, sizeY = self.EaseOutControl.Label:GetSize()
-    self.EaseOutControl.Label:SetRelativePos(self.EaseOutControl, -(sizeX) - 5, 3)
+    self.PlayButton:SetPos(width - 434, 2)
+    self.PlayButton:SetSize(100, 20)
 
-    self.RecordButton:SetPos(width - 60 * 5 - 5 * 5, 2)
+    self.RecordButton:SetPos(width - 325, 2)
     self.RecordButton:SetSize(60, 20)
 
-    self.PropertiesButton:SetPos(width - 60 * 4 - 5 * 4, 2)
+    self.PropertiesButton:SetPos(width - 260, 2)
     self.PropertiesButton:SetSize(60, 20)
 
-    self.SaveButton:SetPos(width - 60 * 3 - 5 * 3, 2)
+    self.SaveButton:SetPos(width - 195, 2)
     self.SaveButton:SetSize(60, 20)
 
-    self.LoadButton:SetPos(width - 60 * 2 - 5 * 2, 2)
+    self.LoadButton:SetPos(width - 130, 2)
     self.LoadButton:SetSize(60, 20)
 
-    self.SettingsButton:SetPos(width - 60 * 1 - 5 * 1, 2)
+    self.SettingsButton:SetPos(width - 65, 2)
     self.SettingsButton:SetSize(60, 20)
+
+end
+
+function PANEL:Paint(width, height)
+
+    RoundedBox(2, 0, 0, width, height, DarkColour)
 
 end
 
@@ -161,9 +170,9 @@ function PANEL:UpdateTimelines(timelineinfo)
         self.TimelinesBase.Timeline[i]:SetPos((i - 1) * (ScrW() / TotallTimelines) + 4,0)
         self.TimelinesBase.Timeline[i]:SetSize((ScrW() / TotallTimelines) - 8,15)
         if i == SMH.State.Timeline then
-            self.TimelinesBase.Timeline[i]:SetBackgroundColor(Color(220, 220, 220, 255))
+            self.TimelinesBase.Timeline[i]:SetBackgroundColor(LightColour)
         else
-            self.TimelinesBase.Timeline[i]:SetBackgroundColor(Color(175, 175, 175, 255))
+            self.TimelinesBase.Timeline[i]:SetBackgroundColor(MiddleColour)
         end
 
         self.TimelinesBase.Timeline[i].Label = vgui.Create("DLabel", self.TimelinesBase.Timeline[i])
@@ -181,9 +190,9 @@ function PANEL:UpdateTimelines(timelineinfo)
 
             for j = 1, TotallTimelines do
                 if j ~= i then
-                    self.TimelinesBase.Timeline[j]:SetBackgroundColor(Color(175, 175, 175, 255))
+                    self.TimelinesBase.Timeline[j]:SetBackgroundColor(MiddleColour)
                 else
-                    self.TimelinesBase.Timeline[j]:SetBackgroundColor(Color(220, 220, 220, 255))
+                    self.TimelinesBase.Timeline[j]:SetBackgroundColor(LightColour)
                 end
             end
         end
@@ -197,21 +206,26 @@ function PANEL:SetInitialState(state)
 end
 
 function PANEL:UpdatePositionLabel(frame, totalFrames)
-    local offset = GetConVar("smh_startatone"):GetInt()
-    self.PositionLabel:SetText("Position: " .. frame + offset .. " / " .. totalFrames - (1 - offset))
+    self.PositionLabel:SetText("Position: " .. frame + 1 .. " / " .. totalFrames)
     self.PositionLabel:SizeToContents()
 end
 
-function PANEL:ShowEasingControls(easeIn, easeOut)
+function PANEL:ShowEasingControls(easing)
     self._sendKeyframeChanges = false
-    self.EaseInControl:SetValue(easeIn)
-    self.EaseOutControl:SetValue(easeOut)
+    self.EaseControl:SetValue(self.EaseControl:GetOptionTextByData(easing))
     self.Easing:SetVisible(true)
     self._sendKeyframeChanges = true
 end
 
 function PANEL:HideEasingControls()
     self.Easing:SetVisible(false)
+end
+
+function PANEL:SetEnabled(enabled)
+    self.PlaybackRateControl:SetEnabled(enabled)
+    self.PlaybackLengthControl:SetEnabled(enabled)
+    self.RecordButton:SetEnabled(enabled)
+    self.EaseControl:SetEnabled(enabled)
 end
 
 function PANEL:OnRequestStateUpdate(newState) end

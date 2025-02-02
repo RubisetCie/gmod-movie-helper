@@ -2,6 +2,8 @@
 -- Lerp methods
 ---
 
+local Lerp = Lerp
+
 function SMH.LerpLinear(s, e, p)
 
     return Lerp(p, s, e);

@@ -1,5 +1,9 @@
 local PANEL = {}
 
+local IsValid = IsValid
+local RoundedBox = draw.RoundedBox
+local DarkColour = Color(32, 40, 24, 215)
+
 function PANEL:Init()
 
     local function CreateSlider(label, min, max, default, func)
@@ -38,7 +42,7 @@ function PANEL:Init()
         return slider
     end
 
-    self:SetTitle("SMH Physics Recorder")
+    self:SetTitle("Physics Recorder")
     self:SetDeleteOnClose(false)
 
     self.FrameAmount = CreateSlider("Record Frame Count", 1, 200, 100, function(_, value)
@@ -99,7 +103,7 @@ function PANEL:Init()
     end
 
     self.RemoveAllSelected = vgui.Create("DButton", self)
-    self.RemoveAllSelected:SetText("Clear all selected")
+    self.RemoveAllSelected:SetText("Clear All Selected")
     self.RemoveAllSelected.DoClick = function()
         SMH.PhysRecord.SelectedEntities = {}
         self.SelectEntity:SetText("Select Entity")
@@ -130,6 +134,12 @@ function PANEL:PerformLayout(width, height)
 
     self.RecordButton:SetPos(5, 140)
     self.RecordButton:SetSize(self:GetWide() - 10, 20)
+
+end
+
+function PANEL:Paint(width, height)
+
+    RoundedBox(2, 0, 0, width, height, DarkColour)
 
 end
 

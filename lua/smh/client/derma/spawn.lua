@@ -1,5 +1,8 @@
 local SaveFile = nil
 
+local RoundedBox = draw.RoundedBox
+local DarkColour = Color(32, 40, 24, 215)
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -37,7 +40,7 @@ function PANEL:Init()
     end
 
     self.PositionLabel = vgui.Create("DLabel", self)
-    self.PositionLabel:SetText("Position offset")
+    self.PositionLabel:SetText("Position Offset")
     self.PositionLabel:SizeToContents()
 
     self.XSlide = CreateSlider("X", -1000, 1000, function(_, value)
@@ -56,7 +59,7 @@ function PANEL:Init()
     end)
 
     self.AngleLabel = vgui.Create("DLabel", self)
-    self.AngleLabel:SetText("Angle offset")
+    self.AngleLabel:SetText("Angle Offset")
     self.AngleLabel:SizeToContents()
 
     self.PSlide = CreateSlider("Pitch", -180, 180, function(_, value)
@@ -93,20 +96,20 @@ function PANEL:PerformLayout(width, height)
     self.BaseClass.PerformLayout(self, width, height)
 
     self.Origins:SetPos(5, 30)
-    self.Origins:SetSize(150 - 5 - 5, 150)
+    self.Origins:SetSize(140, 150)
 
-    self.EntityList:SetPos(150 + 5, 30)
-    self.EntityList:SetSize(150 - 5 - 5, 150)
+    self.EntityList:SetPos(155, 30)
+    self.EntityList:SetSize(140, 150)
 
     self.PositionLabel:SetPos(5, 185)
 
     self.XSlide:SetPos(5, 200)
     self.XSlide:SetSize(300, 30)
 
-    self.YSlide:SetPos(5, 200 + 15 + 5)
+    self.YSlide:SetPos(5, 220)
     self.YSlide:SetSize(300, 30)
 
-    self.ZSlide:SetPos(5, 200 + 30 + 10)
+    self.ZSlide:SetPos(5, 240)
     self.ZSlide:SetSize(300, 30)
 
     self.AngleLabel:SetPos(5, 270)
@@ -114,18 +117,22 @@ function PANEL:PerformLayout(width, height)
     self.PSlide:SetPos(5, 285)
     self.PSlide:SetSize(300, 30)
 
-    self.YawSlide:SetPos(5, 285 + 15 + 5)
+    self.YawSlide:SetPos(5, 305)
     self.YawSlide:SetSize(300, 30)
 
-    self.RSlide:SetPos(5, 285 + 30 + 10)
+    self.RSlide:SetPos(5, 325)
     self.RSlide:SetSize(300, 30)
 
-    self.OffsetCheck:SetPos(5, self:GetTall() - 28 - 15)
+    self.OffsetCheck:SetPos(5, self:GetTall() - 43)
     self.OffsetCheck:SizeToContents()
 
-    self.Spawn:SetPos(self:GetWide() - 60 - 5, self:GetTall() - 28)
+    self.Spawn:SetPos(self:GetWide() - 65, self:GetTall() - 28)
     self.Spawn:SetSize(60, 20)
 
+end
+
+function PANEL:Paint(width, height)
+    RoundedBox(2, 0, 0, width, height, DarkColour)
 end
 
 function PANEL:SetEntities(entities)

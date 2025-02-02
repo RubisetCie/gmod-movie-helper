@@ -3,6 +3,10 @@ local AppendWindowActive = false
 local DeletePromptActive = false
 local FolderSelected = false
 
+local IsValid = IsValid
+local RoundedBox = draw.RoundedBox
+local DarkColour = Color(32, 40, 24, 215)
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -23,7 +27,7 @@ function PANEL:Init()
 
     self.FileList = vgui.Create("DListView", self)
     self.FileList:SetMultiSelect(false)
-    self.FileList:AddColumn("Saved scenes")
+    self.FileList:AddColumn("Saved Scenes")
     self.FileList.OnRowSelected = function(_, rowID, row)
         if not IsValid(row) or row:GetValue(1) == ".." then
             return
@@ -90,20 +94,26 @@ function PANEL:PerformLayout(width, height)
     self.FileList:SetPos(5, 67)
     self.FileList:SetSize(self:GetWide() - 75 - xOffset, 153 + (self:GetTall() - 250))
 
-    self.PathLabel:SetPos(5, 220 + (self:GetTall() - 250))
-    self.PathLabel:SetSize(self:GetWide() - 15 - 60, 20)
+    self.PathLabel:SetPos(5, 220 + (self:GetTall() - 255))
+    self.PathLabel:SetSize(self:GetWide() - 75, 20)
 
-    self.Save:SetPos(self:GetWide() - 65 - xOffset, 67)
+    self.Save:SetPos(self:GetWide() - 65 - xOffset, 50)
     self.Save:SetSize(60 + xOffset, 20 + yOffset)
 
-    self.MakeFolder:SetPos(self:GetWide() - 65 - xOffset, 97 + 2*yOffset)
+    self.MakeFolder:SetPos(self:GetWide() - 65 - xOffset, 80 + 2*yOffset)
     self.MakeFolder:SetSize(60 + xOffset, 20 + yOffset)
 
-    self.Pack:SetPos(self:GetWide() - 65 - xOffset, 127 + 4*yOffset)
+    self.Pack:SetPos(self:GetWide() - 65 - xOffset, 100 + 4*yOffset)
     self.Pack:SetSize(60 + xOffset, 20 + yOffset)
 
-    self.Delete:SetPos(self:GetWide() - 65 - xOffset, 207 + 6*yOffset)
+    self.Delete:SetPos(self:GetWide() - 65 - xOffset, 180 + 6*yOffset)
     self.Delete:SetSize(60 + xOffset, 20 + yOffset)
+
+end
+
+function PANEL:Paint(width, height)
+
+    RoundedBox(2, 0, 0, width, height, DarkColour)
 
 end
 
@@ -181,7 +191,7 @@ function PANEL:DoDelete()
     DeletePromptActive = true
 
     local promptpanel = vgui.Create("DFrame")
-    promptpanel:SetTitle("Confirm delete")
+    promptpanel:SetTitle("Confirm Delete")
     promptpanel:SetPos((ScrW() / 2) - 250/2, (ScrH() / 2) - 200/2)
     promptpanel:SetSize(250, 200)
     promptpanel:MakePopup()
@@ -238,7 +248,7 @@ function PANEL:SaveExists(names)
     OverwriteWarningActive = true
 
     local overwritepanel = vgui.Create("DFrame")
-    overwritepanel:SetTitle("Overwrite save?")
+    overwritepanel:SetTitle("Overwrite Save?")
     overwritepanel:SetPos((ScrW() / 2) - 250/2, (ScrH() / 2) - 250/2)
     overwritepanel:SetSize(250, 250)
     overwritepanel:MakePopup()

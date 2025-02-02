@@ -13,12 +13,23 @@
 
 local PANEL = {}
 
+local surface = surface
+local draw = draw
+local math = math
+local input = input
+local unpack = unpack
+
+local Color = Color
+local GreenColour = Color(25, 200, 25)
+local OutlineColour = Color(25, 25, 25)
+local DraggingColour = Color(225, 225, 225)
+
 function PANEL:Init()
 
     self:SetSize(8, 15)
-    self.Color = Color(0, 200, 0)
-    self.OutlineColor = Color(0, 0, 0)
-    self.OutlineColorDragged = Color(255, 255, 255)
+    self.Color = GreenColour
+    self.OutlineColor = OutlineColour
+    self.OutlineColorDragged = DraggingColour
     self.VerticalPosition = 0
     self.PointyBottom = false
 

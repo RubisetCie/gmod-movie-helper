@@ -1,5 +1,13 @@
 local ActivePlaybacks = {}
 
+local math = math
+local pairs = pairs
+local FrameTime = FrameTime
+local InOutQuad = math.ease.InOutQuad
+local InQuad = math.ease.InQuad
+local OutQuad = math.ease.OutQuad
+
+local SMH = SMH
 local MGR = {}
 
 local function PlaybackSmooth(player, playback, settings)
@@ -30,7 +38,17 @@ local function PlaybackSmooth(player, playback, settings)
                     end
                 else
                     local lerpMultiplier = ((playback.Timer + playback.StartFrame * timePerFrame) - prevKeyframe.Frame * timePerFrame) / ((nextKeyframe.Frame - prevKeyframe.Frame) * timePerFrame)
-                    lerpMultiplier = math.EaseInOut(lerpMultiplier, prevKeyframe.EaseOut[name], nextKeyframe.EaseIn[name])
+                    local nextEase = nextKeyframe.Ease[name]
+                    local prevEase = prevKeyframe.Ease[name]
+                    local nextIn = nextEase == 2 or nextEase == 3
+                    local prevOut = prevEase == 1 or prevEase == 3
+                    if prevOut and nextIn then
+                        lerpMultiplier = InOutQuad(lerpMultiplier)
+                    elseif prevOut then
+                        lerpMultiplier = InQuad(lerpMultiplier)
+                    elseif nextIn then
+                        lerpMultiplier = OutQuad(lerpMultiplier)
+                    end
 
                     if prevKeyframe.Modifiers[name] and nextKeyframe.Modifiers[name] then
                         mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings);
@@ -117,7 +135,9 @@ end
 
 hook.Add("Think", "SMHPlaybackManagerThink", function()
     for player, playback in pairs(ActivePlaybacks) do
-        if not playback.Settings.SmoothPlayback or playback.Settings.TweenDisable then
+        if playback.Settings.SmoothPlayback and not playback.Settings.TweenDisable then
+            PlaybackSmooth(player, playback, playback.Settings)
+        else
 
             playback.Timer = playback.Timer + FrameTime()
             local timePerFrame = 1 / playback.PlaybackRate
@@ -137,8 +157,6 @@ hook.Add("Think", "SMHPlaybackManagerThink", function()
                 end
 
             end
-        else
-            PlaybackSmooth(player, playback, playback.Settings)
         end
     end
 end)

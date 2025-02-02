@@ -5,7 +5,7 @@ local listAssembling = {}
 local MGR = {} -- btw D stands for "deconstruct", A for "Assemble"
 
 function MGR.DKeyframes(keyframes)
-    local IDs, ents, Frame, In, Out, ModCount, Modifiers = {}, {}, {}, {}, {}, {}, {}
+    local IDs, ents, Frame, Ease, ModCount, Modifiers = {}, {}, {}, {}, {}, {}
     local i = 0
     for _, keyframe in pairs(keyframes) do
         i = i + 1
@@ -13,26 +13,24 @@ function MGR.DKeyframes(keyframes)
         IDs[i] = keyframe.ID
         Frame[i] = keyframe.Frame
         ents[i] = keyframe.Entity
-        Modifiers[i], In[i], Out[i] = {}, {}, {}
+        Modifiers[i], Ease[i] = {}, {}
         ModCount[i] = 0
         for name, data in pairs(keyframe.Modifiers) do
             ModCount[i] = ModCount[i] + 1
             Modifiers[i][ModCount[i]] = name
-            In[i][ModCount[i]] = keyframe.EaseIn[name]
-            Out[i][ModCount[i]] = keyframe.EaseOut[name]
+            Ease[i][ModCount[i]] = keyframe.Ease[name]
         end
     end
 
-    return i, IDs, ents, Frame, In, Out, ModCount, Modifiers
+    return i, IDs, ents, Frame, Ease, ModCount, Modifiers
 end
 
-function MGR.AKeyframes(ID, entity, Frame, In, Out, Modifiers)
+function MGR.AKeyframes(ID, entity, Frame, Ease, Modifiers)
     local keyframe = {}
     keyframe.ID = ID
     keyframe.Entity = entity
     keyframe.Frame = Frame
-    keyframe.EaseIn = table.Copy(In)
-    keyframe.EaseOut = table.Copy(Out)
+    keyframe.Ease = table.Copy(Ease)
     keyframe.Modifiers = table.Copy(Modifiers)
 
     table.insert(keyframesAssembling, keyframe)
@@ -98,6 +96,8 @@ function MGR.DTable(list)
     end
     return items, keys, count
 end
+
+local tonumber = tonumber
 
 function MGR.ATable(key, item)
     if not tonumber(key) then

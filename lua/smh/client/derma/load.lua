@@ -1,5 +1,9 @@
 local PANEL = {}
 
+local IsValid = IsValid
+local RoundedBox = draw.RoundedBox
+local DarkColour = Color(32, 40, 24, 215)
+
 function PANEL:Init()
 
     self:SetTitle("Load")
@@ -17,7 +21,7 @@ function PANEL:Init()
     self.PathLabel:SetTooltip("smh/")
 
     self.FileList = vgui.Create("DListView", self)
-    self.FileList:AddColumn("Saved scenes")
+    self.FileList:AddColumn("Saved Scenes")
     self.FileList:SetMultiSelect(false)
     self.FileList.OnRowSelected = function(_, rowIndex, row)
         if row.IsFolder or row:GetValue(1) == ".." then
@@ -55,16 +59,16 @@ function PANEL:Init()
     end
 
     self.SaveEntity = vgui.Create("DLabel", self)
-    self.SaveEntity:SetText("Save's model: " .. "nil")
+    self.SaveEntity:SetText("Model: None")
 
     self.SaveClass = vgui.Create("DLabel", self)
-    self.SaveClass:SetText("Save's class: " .. "nil")
+    self.SaveClass:SetText("Class: None")
 
     self.SaveMap = vgui.Create("DLabel", self)
-    self.SaveMap:SetText("Save's map: " .. "nil")
+    self.SaveMap:SetText("Map: None")
 
     self.SelectedEnt = vgui.Create("DLabel", self)
-    self.SelectedEnt:SetText("Selected model: " .. "nil")
+    self.SelectedEnt:SetText("Selected: None")
 
 end
 
@@ -103,6 +107,12 @@ function PANEL:PerformLayout(width, height)
 
 end
 
+function PANEL:Paint(width, height)
+
+    RoundedBox(2, 0, 0, width, height, DarkColour)
+
+end
+
 function PANEL:DoFolderPath(path)
     if not path or path == "" then
         return
@@ -114,8 +124,8 @@ function PANEL:DoFolderPath(path)
 end
 
 function PANEL:UpdateSelectedEnt(ent)
-    local SelectedName = ent == LocalPlayer() and "world" or IsValid(ent) and ent:GetModel() or "nil"
-    self.SelectedEnt:SetText("Selected model: " .. SelectedName)
+    local SelectedName = ent == LocalPlayer() and "world" or IsValid(ent) and ent:GetModel() or "None"
+    self.SelectedEnt:SetText("Selected: " .. SelectedName)
 end
 
 function PANEL:SetSaves(folders, saves, path)
@@ -133,12 +143,12 @@ end
 
 function PANEL:SetEntities(entities, map)
     self.EntityList:UpdateLines(entities)
-    self.SaveMap:SetText("Selected map: " .. map)
+    self.SaveMap:SetText("Map: " .. map)
 end
 
 function PANEL:SetModelName(name, class)
-    self.SaveEntity:SetText("Save's model: " .. name)
-    self.SaveClass:SetText("Save's class: " .. class)
+    self.SaveEntity:SetText("Model: " .. name)
+    self.SaveClass:SetText("Class: " .. class)
 end
 
 function PANEL:LoadSelected()

@@ -4,5 +4,5 @@ SMH.State = {
     Timeline = 1,
 
     PlaybackRate = 30,
-    PlaybackLength = 100,
+    PlaybackLength = 200,
 }

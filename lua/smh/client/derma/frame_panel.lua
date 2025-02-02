@@ -1,5 +1,9 @@
 local PANEL = {}
 
+local IsPlaying = SMH.Controller.IsPlaying
+local surface = surface
+local math = math
+
 function PANEL:Init()
 
     self:SetBackgroundColor(Color(64, 64, 64, 64))
@@ -20,8 +24,9 @@ function PANEL:Init()
     self.ScrollButtonRight.Paint = function(self, w, h) derma.SkinHook("Paint", "ButtonRight", self, w, h) end
     self.ScrollButtonRight.DoClick = function() self:SetScrollOffset(self.ScrollOffset + 1) end
 
-    self.Zoom = 100
-    self.TotalFrames = 100
+    self.Zoom = 200
+    self.FrameRate = 30
+    self.TotalFrames = 200
     self.ScrollOffset = 0
     self.FrameArea = {0, 1}
     self._draggingScrollBar = false
@@ -35,7 +40,7 @@ function PANEL:PerformLayout(width, height)
 
     local frameAreaPadding = 10
     local scrollPadding = 18
-    local scrollHeight = 12
+    local scrollHeight = 11
     local scrollPosY = self:GetTall() - scrollHeight
 
     self.ScrollBarRect = {
@@ -65,14 +70,44 @@ function PANEL:Paint(width, height)
     local startX, endX = unpack(self.FrameArea)
     local frameWidth = (endX - startX) / (self.Zoom - 1)
 
-    surface.SetDrawColor(255, 255, 255, 255)
-    for i = 0, self.Zoom - 1 do
-        if self.ScrollOffset + i < self.TotalFrames then
-            local x = startX + frameWidth * i
-            surface.DrawLine(x, 6, x, height - 6)
+    if not IsPlaying() then
+        local cycle = 0
+        for i = 0, self.Zoom - 1 do
+            local frame = self.ScrollOffset + i
+            if frame < self.TotalFrames then
+                local x = math.floor(startX + frameWidth * i)
+                if cycle == 0 then
+                    cycle = cycle + 1
+                    surface.SetDrawColor(200, 200, 200, 255)
+                    surface.DrawLine(x, 8, x, height - 6)
+                else
+                    if cycle == 1 then
+                        cycle = cycle + 1
+                        surface.SetDrawColor(180, 180, 180, 255)
+                    elseif cycle < self.FrameRate - 1 then
+                        cycle = cycle + 1
+                    else
+                        cycle = 0
+                    end
+                    surface.DrawLine(x, 16, x, height - 6)
+                end
+            end
+        end
+    else
+        surface.SetDrawColor(150, 150, 100, 255)
+        for i = 0, self.Zoom - 1 do
+            local frame = self.ScrollOffset + i
+            if frame < self.TotalFrames then
+                local x = math.floor(startX + frameWidth * i)
+                surface.DrawLine(x, 16, x, height - 6)
+            end
         end
     end
 
+end
+
+function PANEL:UpdateFrameRate(framerate)
+    self.FrameRate = framerate
 end
 
 function PANEL:UpdateFrameCount(totalframes)

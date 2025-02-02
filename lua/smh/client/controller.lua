@@ -1,18 +1,20 @@
 local INT_BITCOUNT = 32
 local KFRAMES_PER_MSG = 250
 
+local math = math
+local net = net
+
 local function ReceiveKeyframes()
     local framecount = net.ReadUInt(INT_BITCOUNT)
     for i = 1, framecount do
         local ID, entity, Frame, ModCount = net.ReadUInt(INT_BITCOUNT), net.ReadEntity(), net.ReadUInt(INT_BITCOUNT), net.ReadUInt(INT_BITCOUNT)
-        local Modifiers, In, Out = {}, {}, {}
+        local Modifiers, Ease = {}, {}
         for j = 1, ModCount do
             local name = net.ReadString()
             Modifiers[name] = true
-            In[name] = net.ReadFloat()
-            Out[name] = net.ReadFloat()
+            Ease[name] = net.ReadUInt(INT_BITCOUNT)
         end
-        SMH.TableSplit.AKeyframes(ID, entity, Frame, In, Out, Modifiers)
+        SMH.TableSplit.AKeyframes(ID, entity, Frame, Ease, Modifiers)
     end
     return SMH.TableSplit.GetKeyframes()
 end
@@ -40,6 +42,7 @@ local function ReceiveProperties()
 end
 
 local CTRL = {}
+local Playing = false
 
 function CTRL.SetFrame(frame)
     if SMH.PhysRecord.IsActive() then return end
@@ -103,7 +106,7 @@ function CTRL.UpdateKeyframe(keyframeId, updateData, singledata)
             if singledata then
                 for data, value in pairs(updateData) do
                     net.WriteString(data)
-                    if data == "Frame" then
+                    if data == "Frame" or data == "Ease" then
                         net.WriteUInt(value, INT_BITCOUNT)
                     else
                         net.WriteFloat(value)
@@ -112,7 +115,7 @@ function CTRL.UpdateKeyframe(keyframeId, updateData, singledata)
             else
                 for data, value in pairs(updateData[ids]) do
                     net.WriteString(data)
-                    if data == "Frame" then
+                    if data == "Frame" or data == "Ease" then
                         net.WriteUInt(value, INT_BITCOUNT)
                     else
                         net.WriteFloat(value)
@@ -165,6 +168,10 @@ function CTRL.DeleteKeyframe(keyframeId)
 
         net.SendToServer()
     end
+end
+
+function CTRL.IsPlaying()
+    return Playing
 end
 
 function CTRL.StartPlayback()
@@ -307,16 +314,6 @@ function CTRL.ShouldHighlight()
     return SMH.UI.IsOpen()
 end
 
-function CTRL.ToggleRendering(useScreenshot, StartFrame)
-    if SMH.PhysRecord.IsActive() then return end
-
-    if SMH.Renderer.IsRendering() then
-        SMH.Renderer.Stop()
-    else
-        SMH.Renderer.Start(useScreenshot, StartFrame)
-    end
-end
-
 function CTRL.OpenMenu()
     SMH.UI.Open()
 end
@@ -349,16 +346,6 @@ end
 
 function CTRL.UpdateUISetting(setting, value)
     SMH.UI.UpdateUISetting(setting, value)
-end
-
-function CTRL.OpenHelp()
-    gui.OpenURL("https://github.com/Winded/StopMotionHelper/blob/master/TUTORIAL.md")
-end
-
-function CTRL.SetRendering(rendering)
-    net.Start(SMH.MessageTypes.SetRendering)
-    net.WriteBool(rendering)
-    net.SendToServer()
 end
 
 function CTRL.UpdateGhostState()
@@ -566,6 +553,12 @@ local function DeleteKeyframeResponse(msgLength)
     SMH.UI.DeleteKeyframe(keyframeId)
 end
 
+local function PlaybackResponse(msgLength)
+    Playing = net.ReadBool()
+
+    SMH.UI.SetEnabled(not Playing)
+end
+
 local function GetAllKeyframes(msgLength)
     local keyframes = ReceiveKeyframes()
 
@@ -737,6 +730,8 @@ local function Setup()
     net.Receive(SMH.MessageTypes.UpdateKeyframeResponse, UpdateKeyframeResponse)
     net.Receive(SMH.MessageTypes.DeleteKeyframeResponse, DeleteKeyframeResponse)
     net.Receive(SMH.MessageTypes.GetAllKeyframes, GetAllKeyframes)
+
+    net.Receive(SMH.MessageTypes.PlaybackResponse, PlaybackResponse)
 
     net.Receive(SMH.MessageTypes.GetServerSavesResponse, GetServerSavesResponse)
     net.Receive(SMH.MessageTypes.GetModelListResponse, GetModelListResponse)

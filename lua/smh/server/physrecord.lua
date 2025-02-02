@@ -1,5 +1,7 @@
 local SMHRecorderID = "SMH_Recording_Timer"
 
+local timer = timer
+
 local MGR = {}
 
 local function RecordPhys(player, entities, timelines, frame)
@@ -29,7 +31,6 @@ function MGR.RecordStart(player, framecount, interval, frame, playbackrate, endf
         if counter >= framecount - 1 or frame + 1 > endframe - 1  then
             RecordPhys(player, entities, timelines, frame)
             timer.Remove(SMHRecorderID .. player:EntIndex())
-            player:ChatPrint( "SMH Physics Recorder stopped.")
             SMH.Controller.StopPhysicsRecordResponse(player)
         else
             frame = frame + 1
@@ -41,7 +42,6 @@ end
 
 function MGR.RecordStop(player)
     timer.Remove(SMHRecorderID .. player:EntIndex())
-    player:ChatPrint( "SMH Physics Recorder stopped.")
 end
 
 SMH.PhysRecord = MGR

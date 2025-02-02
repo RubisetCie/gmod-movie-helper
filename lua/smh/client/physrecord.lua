@@ -2,6 +2,9 @@ local SMHRecorderID = "SMH_Recording_Timer"
 local Active = false
 local Waiting = 0
 
+local surface = surface
+local timer = timer
+
 surface.CreateFont( "smh_font", {
     font = "Arial", 
     extended = false,

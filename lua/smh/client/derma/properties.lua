@@ -7,6 +7,13 @@ local selectedEntity = nil
 local UsingWorld = false
 local IsSaving = false
 
+local Color = Color
+local DarkColour = Color(32, 40, 24, 215)
+local GreyColour = Color(100, 100, 100)
+local ShadowColour = Color(25, 25, 25)
+
+local RoundedBox = draw.RoundedBox
+
 local function GetModelName(entity)
     local mdl = string.Split(entity:GetModel(), "/");
     mdl = mdl[#mdl];
@@ -56,7 +63,7 @@ function PANEL:Init()
     self:SetPos(ScrW() / 2 - self:GetWide() / 2, ScrH() / 2 - self:GetTall() / 2)
 
     self.EntitiesPanel = vgui.Create("DPanel", self)
-    self.EntitiesPanel:SetBackgroundColor(Color(155, 155, 155, 255))
+    self.EntitiesPanel:SetBackgroundColor(GreyColour)
 
     self.EntityNameEnter = vgui.Create("DTextEntry", self.EntitiesPanel)
     self.EntityNameEnter:SetSize(236, 20)
@@ -85,7 +92,7 @@ function PANEL:Init()
     end
 
     self.TimelinesPanel = vgui.Create("DPanel", self)
-    self.TimelinesPanel:SetBackgroundColor(Color(155, 155, 155, 255))
+    self.TimelinesPanel:SetBackgroundColor(GreyColour)
 
     self.SettingPicker = vgui.Create("DComboBox", self.TimelinesPanel)
     self.SettingPicker.OnSelect = function(_, index, value)
@@ -121,7 +128,7 @@ function PANEL:Init()
     self.TimelinesCList = vgui.Create("DCategoryList", self.TimelinesPanel)
 
     self.ColorPanel = vgui.Create("DPanel", self)
-    self.ColorPanel:SetBackgroundColor(Color(155, 155, 155, 255))
+    self.ColorPanel:SetBackgroundColor(GreyColour)
 
     self.ColorLabel = vgui.Create("DLabel", self.ColorPanel)
     self.ColorLabel:SetText("Keyframe Color for timeline: " .. "none")
@@ -186,7 +193,7 @@ function PANEL:PerformLayout(width, height)
     self.EntitiesPanel:SetSize(240, self:GetTall() - 4 - 30)
 
     self.EntityNameEnter:SetPos(2, 25)
-        self.EntityNameEnter.Label:SetRelativePos(self.EntityNameEnter, 2, -5 - self.EntityNameEnter.Label:GetTall())
+    self.EntityNameEnter.Label:SetRelativePos(self.EntityNameEnter, 2, -5 - self.EntityNameEnter.Label:GetTall())
 
     self.EntityList:SetPos(5, 60)
     self.EntityList:SetSize(230, self.EntitiesPanel:GetTall() - 60 - 5)
@@ -232,16 +239,20 @@ function PANEL:PerformLayout(width, height)
 
     self.ConsoleEnter:SetPos(5, 15)
     self.ConsoleEnter:SetSize(self.WorldParent:GetWide() - 10, 20)
-        self.ConsoleEnter.Label:SetRelativePos(self.ConsoleEnter, 2, -5 - self.ConsoleEnter.Label:GetTall())
+    self.ConsoleEnter.Label:SetRelativePos(self.ConsoleEnter, 2, -5 - self.ConsoleEnter.Label:GetTall())
 
     self.ButtonPressEnter:SetPos(5, 55)
     self.ButtonPressEnter:SetSize(self.WorldParent:GetWide() - 10, 20)
-        self.ButtonPressEnter.Label:SetRelativePos(self.ButtonPressEnter, 2, -5 - self.ButtonPressEnter.Label:GetTall())
+    self.ButtonPressEnter.Label:SetRelativePos(self.ButtonPressEnter, 2, -5 - self.ButtonPressEnter.Label:GetTall())
 
     self.ButtonReleaseEnter:SetPos(5, 95)
     self.ButtonReleaseEnter:SetSize(self.WorldParent:GetWide() - 10, 20)
-        self.ButtonReleaseEnter.Label:SetRelativePos(self.ButtonReleaseEnter, 2, -5 - self.ButtonReleaseEnter.Label:GetTall())
+    self.ButtonReleaseEnter.Label:SetRelativePos(self.ButtonReleaseEnter, 2, -5 - self.ButtonReleaseEnter.Label:GetTall())
 
+end
+
+function PANEL:Paint(width, height)
+    RoundedBox(2, 0, 0, width, height, DarkColour)
 end
 
 function PANEL:MakeSettingSavePanel()
@@ -338,7 +349,7 @@ function PANEL:BuildTimelineinfo()
         for mod, name in pairs(ModifierList) do
             self.TimelinesUI[i].Contents.Checker[mod] = vgui.Create("DCheckBoxLabel", self.TimelinesUI[i].Contents)
             self.TimelinesUI[i].Contents.Checker[mod]:SetText(name)
-            self.TimelinesUI[i].Contents.Checker[mod]:SetTextColor(Color(25, 25, 25))
+            self.TimelinesUI[i].Contents.Checker[mod]:SetTextColor(ShadowColour)
             self.TimelinesUI[i].Contents.Checker[mod].OnChange = function(_, check)
                 if UsingWorld then return end
                 self:OnUpdateModifierRequested(i, mod, check)

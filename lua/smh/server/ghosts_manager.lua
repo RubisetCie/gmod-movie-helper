@@ -4,6 +4,10 @@ local LastTimeline = 1
 local SpawnGhost, SpawnGhostData, GhostSettings = {}, {}, {}
 local SpawnOffsetOn, SpawnOriginData, OffsetPos, OffsetAng = {}, {}, {}, {}
 
+local IsValid = IsValid
+local vector_origin = vector_origin
+local angle_zero = angle_zero
+
 local function CreateGhost(player, entity, color, frame, ghostable)
     for _, ghost in ipairs(GhostData[player].Ghosts) do
         if ghost.Entity == entity and ghost.Frame == frame then return ghost end -- we already have a ghost on this entity for this frame, just return it.
@@ -73,8 +77,6 @@ end
 
 local MGR = {}
 
-MGR.IsRendering = false
-
 function MGR.SelectEntity(player, entities)
     if not GhostData[player] then
         GhostData[player] = {
@@ -103,7 +105,7 @@ function MGR.UpdateState(player, frame, settings, timeline, settimeline)
     end
     table.Empty(ghosts)
 
-    if not settings.GhostPrevFrame and not settings.GhostNextFrame and not settings.OnionSkin or MGR.IsRendering then
+    if not settings.GhostPrevFrame and not settings.GhostNextFrame and not settings.OnionSkin then
         return
     end
 
@@ -248,8 +250,8 @@ function MGR.SetSpawnPreview(class, modelpath, data, settings, player)
     for name, mod in pairs(SMH.Modifiers) do
         if name == "color" then continue end
         if name == "physbones" or name == "position" then
-            local offsetpos = OffsetPos[player] or Vector(0, 0, 0)
-            local offsetang = OffsetAng[player] or Angle(0, 0, 0)
+            local offsetpos = OffsetPos[player] or vector_origin
+            local offsetang = OffsetAng[player] or angle_zero
 
             offsetdata = mod:Offset(data[name].Modifiers, SpawnOriginData[player][name].Modifiers, offsetpos, offsetang, nil)
             mod:Load(SpawnGhost[player], offsetdata, GhostSettings[player])
@@ -266,8 +268,8 @@ function MGR.RefreshSpawnPreview(player, offseton)
     for name, mod in pairs(SMH.Modifiers) do
         if name == "color" then continue end
         if name == "physbones" or name == "position" then
-            local offsetpos = OffsetPos[player] or Vector(0, 0, 0)
-            local offsetang = OffsetAng[player] or Angle(0, 0, 0)
+            local offsetpos = OffsetPos[player] or vector_origin
+            local offsetang = OffsetAng[player] or angle_zero
 
             offsetdata = mod:Offset(SpawnGhostData[player][name].Modifiers, SpawnOriginData[player][name].Modifiers, offsetpos, offsetang, nil)
             mod:Load(SpawnGhost[player], offsetdata, GhostSettings[player])
@@ -310,8 +312,8 @@ hook.Add("Think", "SMHGhostSpawnOffsetPreview", function()
             for name, mod in pairs(SMH.Modifiers) do
                 if name == "color" then continue end
                 if SpawnGhostData[player][name] and data[name] and (name == "physbones" or name == "position") then
-                    local offsetpos = OffsetPos[player] or Vector(0, 0, 0)
-                    local offsetang = OffsetAng[player] or Angle(0, 0, 0)
+                    local offsetpos = OffsetPos[player] or vector_origin
+                    local offsetang = OffsetAng[player] or angle_zero
 
                     offsetdata = mod:Offset(SpawnGhostData[player][name].Modifiers, data[name].Modifiers, offsetpos, offsetang, player:GetEyeTraceNoCursor().HitPos)
                     mod:Load(SpawnGhost[player], offsetdata, GhostSettings[player])

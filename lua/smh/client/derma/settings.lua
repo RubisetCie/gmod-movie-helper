@@ -32,7 +32,7 @@ function PANEL:Init()
         return slider
     end
 
-    self:SetTitle("SMH Settings")
+    self:SetTitle("Movie Helper Settings")
     self:SetDeleteOnClose(false)
 
     self.FreezeAll = CreateCheckBox("FreezeAll", "Freeze all")
@@ -52,13 +52,7 @@ function PANEL:Init()
         self:OnRequestOpenPhysRecorder()
     end
 
-    self.HelpButton = vgui.Create("DButton", self)
-    self.HelpButton:SetText("Help")
-    self.HelpButton.DoClick = function()
-        self:OnRequestOpenHelp()
-    end
-
-    self:SetSize(250, 290)
+    self:SetSize(250, 265)
 
     self._changingSettings = false
 
@@ -87,11 +81,17 @@ function PANEL:PerformLayout(width, height)
     self.GhostTransparency:SetPos(5, 205)
     self.GhostTransparency:SetSize(self:GetWide() - 5 - 5, 25)
 
-    self.PhysButton:SetPos(5, 230)
+    self.PhysButton:SetPos(5, 240)
     self.PhysButton:SetSize(self:GetWide() - 10, 20)
 
-    self.HelpButton:SetPos(5, 255)
-    self.HelpButton:SetSize(self:GetWide() - 5 - 5, 20)
+end
+
+local RoundedBox = draw.RoundedBox
+local DarkColour = Color(32, 40, 24, 215)
+
+function PANEL:Paint(width, height)
+
+    RoundedBox(2, 0, 0, width, height, DarkColour)
 
 end
 
@@ -124,7 +124,6 @@ function PANEL:ApplySettings(settings)
 end
 
 function PANEL:OnSettingsUpdated(settings) end
-function PANEL:OnRequestOpenHelp() end
 function PANEL:OnRequestOpenPhysRecorder() end
 
 vgui.Register("SMHSettings", PANEL, "DFrame")

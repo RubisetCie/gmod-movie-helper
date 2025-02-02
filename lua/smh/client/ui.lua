@@ -12,7 +12,7 @@ local OffsetPointers = {}
 local LocalIDs = 0
 
 local LastSelectedKeyframe = nil
-local KeyColor = Color(0, 200, 0)
+local KeyColor = Color(25, 200, 25)
 
 local ClickerEntity = {}
 
@@ -300,9 +300,6 @@ local function AddCallbacks()
     WorldClicker.Settings.OnRequestOpenPhysRecorder = function()
         WorldClicker.PhysRecorder:SetVisible(true)
     end
-    WorldClicker.Settings.OnRequestOpenHelp = function()
-        SMH.Controller.OpenHelp()
-    end
 
     SaveMenu.OnSaveRequested = function(_, path, saveToClient)
         SMH.Controller.RequestSave(path, saveToClient, false)
@@ -466,6 +463,7 @@ function MGR.Open()
 end
 
 function MGR.Close()
+    WorldClicker.MainMenu.EaseControl:CloseMenu()
     WorldClicker:SetVisible(false)
 end
 
@@ -480,9 +478,9 @@ function MGR.SetFrame(frame)
         if FrameToKeyframe[frame] ~= nil then
             local data = KeyframeEasingData[FrameToKeyframe[frame]]
             if data then
-                WorldClicker.MainMenu:ShowEasingControls(data.EaseIn, data.EaseOut)
+                WorldClicker.MainMenu:ShowEasingControls(data.Ease)
             else
-                WorldClicker.MainMenu:ShowEasingControls(0, 0)
+                WorldClicker.MainMenu:ShowEasingControls(0)
             end
         else
             WorldClicker.MainMenu:HideEasingControls()
@@ -526,8 +524,7 @@ function MGR.SetKeyframes(keyframes, isreceiving)
                         KeyframePointers[LocalIDs]:AddID(keyframe.ID, keyframe.Entity)
                         FrameToKeyframe[keyframe.Frame] = LocalIDs
                         KeyframeEasingData[LocalIDs] = {
-                            EaseIn = keyframe.EaseIn[name],
-                            EaseOut = keyframe.EaseOut[name],
+                            Ease = keyframe.Ease[name]
                         }
                         KeyframeIDs[keyframe.ID] = LocalIDs
                         LocalIDs = LocalIDs + 1
@@ -544,9 +541,9 @@ function MGR.SetKeyframes(keyframes, isreceiving)
         if FrameToKeyframe[SMH.State.Frame] ~= nil then
             local data = KeyframeEasingData[FrameToKeyframe[SMH.State.Frame]]
             if data then
-                WorldClicker.MainMenu:ShowEasingControls(data.EaseIn, data.EaseOut)
+                WorldClicker.MainMenu:ShowEasingControls(data.Ease)
             else
-                WorldClicker.MainMenu:ShowEasingControls(0, 0)
+                WorldClicker.MainMenu:ShowEasingControls(0)
             end
         else
             WorldClicker.MainMenu:HideEasingControls()
@@ -560,8 +557,7 @@ function MGR.SetKeyframes(keyframes, isreceiving)
                 KeyframePointers[LocalIDs]:AddID(keyframe.ID, keyframe.Entity)
                 FrameToKeyframe[keyframe.Frame] = LocalIDs
                 KeyframeEasingData[LocalIDs] = {
-                    EaseIn = keyframe.EaseIn["world"],
-                    EaseOut = keyframe.EaseOut["world"],
+                    Ease = keyframe.Ease["world"]
                 }
                 KeyframeIDs[keyframe.ID] = LocalIDs
                 LocalIDs = LocalIDs + 1
@@ -596,8 +592,7 @@ function MGR.UpdateKeyframe(keyframe)
     local _, name = next(PropertiesMenu:GetCurrentModifiers())
 
     KeyframeEasingData[KeyframeIDs[keyframe.ID]] = {
-        EaseIn = keyframe.EaseIn[name],
-        EaseOut = keyframe.EaseOut[name],
+        Ease = keyframe.Ease[name]
     }
 
     KeyframePointers[KeyframeIDs[keyframe.ID]]:SetFrame(keyframe.Frame)
@@ -610,7 +605,7 @@ function MGR.UpdateKeyframe(keyframe)
     end
     FrameToKeyframe[keyframe.Frame] = KeyframeIDs[keyframe.ID]
     if keyframe.Frame == SMH.State.Frame then
-        WorldClicker.MainMenu:ShowEasingControls(keyframe.EaseIn[name], keyframe.EaseOut[name])
+        WorldClicker.MainMenu:ShowEasingControls(keyframe.Ease[name])
     end
 end
 
@@ -817,9 +812,14 @@ function MGR.SetTimeline(timeline)
     end
 end
 
+function MGR.SetEnabled(enabled)
+    WorldClicker.MainMenu:SetEnabled(enabled)
+end
+
 function MGR.UpdateState(newState)
     WorldClicker.MainMenu:UpdatePositionLabel(newState.Frame, newState.PlaybackLength)
     WorldClicker.MainMenu.FramePanel:UpdateFrameCount(newState.PlaybackLength)
+    WorldClicker.MainMenu.FramePanel:UpdateFrameRate(newState.PlaybackRate)
 end
 
 function MGR.UpdateModifier(timelineinfo, changed)

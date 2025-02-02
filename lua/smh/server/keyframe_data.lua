@@ -1,3 +1,7 @@
+local InOutQuad = math.ease.InOutQuad
+local InQuad = math.ease.InQuad
+local OutQuad = math.ease.OutQuad
+
 function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     if ignoreCurrentFrame == nil then
         ignoreCurrentFrame = false
@@ -30,7 +34,17 @@ function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     local lerpMultiplier = 0
     if prevKeyframe.Frame ~= nextKeyframe.Frame then
         lerpMultiplier = (frame - prevKeyframe.Frame) / (nextKeyframe.Frame - prevKeyframe.Frame)
-        lerpMultiplier = math.EaseInOut(lerpMultiplier, prevKeyframe.EaseOut[modname], nextKeyframe.EaseIn[modname])
+        local prevEase = prevKeyframe.Ease[modname]
+        local nextEase = nextKeyframe.Ease[modname]
+        local nextIn = nextEase == 2 or nextEase == 3
+        local prevOut = prevEase == 1 or prevEase == 3
+        if prevOut and nextIn then
+            lerpMultiplier = InOutQuad(lerpMultiplier)
+        elseif prevOut then
+            lerpMultiplier = InQuad(lerpMultiplier)
+        elseif nextIn then
+            lerpMultiplier = OutQuad(lerpMultiplier)
+        end
     end
 
     return prevKeyframe, nextKeyframe, lerpMultiplier
@@ -44,8 +58,7 @@ function META:New(player, entity)
         ID = self.NextKeyframeId,
         Entity = entity,
         Frame = -1,
-        EaseIn = {},
-        EaseOut = {},
+        Ease = {},
         Modifiers = {}
     }
     self.NextKeyframeId = self.NextKeyframeId + 1

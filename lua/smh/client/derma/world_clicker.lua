@@ -1,3 +1,7 @@
+local IsValid = IsValid
+local input = input
+local util = util
+
 local BaseClass = baseclass.Get("EditablePanel")
 local PANEL = {}
 

@@ -1,11 +1,17 @@
 -- Most taken from lua/includes/modules/halo.lua
 -- https://github.com/Facepunch/garrysmod/blob/e47ac049d026f922867ee3adb2c4746fb1244300/garrysmod/lua/includes/modules/halo.lua#L38
--- local matColor    = Material( "model_color" )
-local mat_Copy    = Material( "pp/copy" )
-local mat_Add    = Material( "pp/add" )
--- local mat_Sub    = Material( "pp/sub" )
-local rt_Stencil    = render.GetBloomTex0()
-local rt_Store        = render.GetScreenEffectTexture( 0 )
+local IsValid = IsValid
+local EyePos = EyePos
+local EyeAngles = EyeAngles
+local surface = surface
+local render = render
+local cam = cam
+-- local matColor = Material( "model_color" )
+local mat_Copy = Material( "pp/copy" )
+local mat_Add = Material( "pp/add" )
+-- local mat_Sub = Material( "pp/sub" )
+local rt_Stencil = render.GetBloomTex0()
+local rt_Store = render.GetScreenEffectTexture( 0 )
 local function RenderHalo(entities)
 
     local OldRT = render.GetRenderTarget()
@@ -16,9 +22,7 @@ local function RenderHalo(entities)
     -- Clear the colour and the stencils, not the depth
     render.Clear( 0, 0, 0, 255, false, true )
 
-
-    -- FILL STENCIL
-    -- Write to the stencil..
+    -- Write to the stencil
     cam.Start3D( EyePos(), EyeAngles() )
 
         render.SetStencilEnable( true )
@@ -34,11 +38,11 @@ local function RenderHalo(entities)
             render.SetStencilFailOperation( STENCILOPERATION_KEEP )
             render.SetStencilZFailOperation( STENCILOPERATION_KEEP )
 
-                for entity, _ in pairs(entities) do
-                    if IsValid(entity) then
-                        entity:DrawModel()
-                    end
+            for entity, _ in pairs(entities) do
+                if IsValid(entity) then
+                    entity:DrawModel()
                 end
+            end
 
             render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
             render.SetStencilPassOperation( STENCILOPERATION_KEEP )
@@ -52,7 +56,7 @@ local function RenderHalo(entities)
         render.SetStencilEnable(false)
     cam.End3D()
 
-    -- BLUR IT
+    -- Blur it
     render.CopyRenderTargetToTexture( rt_Stencil )
     render.BlurRenderTarget( rt_Stencil, 2, 2, 1 )
 
@@ -64,7 +68,7 @@ local function RenderHalo(entities)
     render.SetMaterial( mat_Copy )
     render.DrawScreenQuad()
 
-    -- DRAW IT TO THE SCEEN
+    -- Draw it to the screen
     render.SetStencilEnable( true )
 
         render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_NOTEQUAL )
@@ -78,7 +82,7 @@ local function RenderHalo(entities)
 
     render.SetStencilEnable( false )
 
-    -- PUT EVERYTHING BACK HOW WE FOUND IT
+    -- Put everything back how we found it
 
     render.SetStencilWriteMask( 0 )
     render.SetStencilReferenceValue( 0 )
