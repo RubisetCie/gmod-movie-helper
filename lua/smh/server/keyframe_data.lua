@@ -2,11 +2,7 @@ local InOutQuad = math.ease.InOutQuad
 local InQuad = math.ease.InQuad
 local OutQuad = math.ease.OutQuad
 
-function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
-    if ignoreCurrentFrame == nil then
-        ignoreCurrentFrame = false
-    end
-
+function SMH.GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     local prevKeyframe = nil
     local nextKeyframe = nil
     for _, keyframe in pairs(keyframes) do
@@ -31,6 +27,12 @@ function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
         nextKeyframe = prevKeyframe
     end
 
+    return prevKeyframe, nextKeyframe
+end
+
+local GetBetweenKeyframes = SMH.GetBetweenKeyframes
+function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
+    local prevKeyframe, nextKeyframe = GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     local lerpMultiplier = 0
     if prevKeyframe.Frame ~= nextKeyframe.Frame then
         lerpMultiplier = (frame - prevKeyframe.Frame) / (nextKeyframe.Frame - prevKeyframe.Frame)

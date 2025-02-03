@@ -28,7 +28,7 @@ local function PlaybackSmooth(player, playback, settings)
     for entity, keyframes in pairs(SMH.KeyframeData.Players[player].Entities) do
         if entity ~= player then
             for name, mod in pairs(SMH.Modifiers) do
-                local prevKeyframe, nextKeyframe, _ = SMH.GetClosestKeyframes(keyframes, playback.CurrentFrame, false, name)
+                local prevKeyframe, nextKeyframe = SMH.GetBetweenKeyframes(keyframes, playback.CurrentFrame, false, name)
 
                 if not prevKeyframe then continue end
 
