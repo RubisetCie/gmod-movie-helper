@@ -53,6 +53,10 @@ function MOD:Load(entity, data)
 
 end
 
+local LerpLinear = SMH.LerpLinear
+local LerpLinearAngle = SMH.LerpLinearAngle
+local LerpLinearVector = SMH.LerpLinearVector
+
 function MOD:LoadBetween(entity, data1, data2, percentage)
 
     if self:IsEffect(entity) then
@@ -66,9 +70,9 @@ function MOD:LoadBetween(entity, data1, data2, percentage)
         local d1 = data1[b];
         local d2 = data2[b];
 
-        local Pos = SMH.LerpLinearVector(d1.Pos, d2.Pos, percentage);
-        local Ang = SMH.LerpLinearAngle(d1.Ang, d2.Ang, percentage);
-        local Scale = SMH.LerpLinear(d1.Scale, d2.Scale, percentage);
+        local Pos = LerpLinearVector(d1.Pos, d2.Pos, percentage);
+        local Ang = LerpLinearAngle(d1.Ang, d2.Ang, percentage);
+        local Scale = LerpLinear(d1.Scale, d2.Scale, percentage);
 
         entity:ManipulateBonePosition(b, Pos);
         entity:ManipulateBoneAngles(b, Ang);

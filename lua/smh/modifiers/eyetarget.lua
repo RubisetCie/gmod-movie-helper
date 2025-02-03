@@ -38,6 +38,8 @@ function MOD:Load(entity, data)
 
 end
 
+local LerpLinearVector = SMH.LerpLinearVector
+
 function MOD:LoadBetween(entity, data1, data2, percentage)
 
     if self:IsEffect(entity) then
@@ -46,7 +48,7 @@ function MOD:LoadBetween(entity, data1, data2, percentage)
 
     if not self:HasEyes(entity) then return; end --Shouldn't happen, but meh
 
-    local et = SMH.LerpLinearVector(data1.EyeTarget, data2.EyeTarget, percentage);
+    local et = LerpLinearVector(data1.EyeTarget, data2.EyeTarget, percentage);
 
     entity:SetEyeTarget(et);
 

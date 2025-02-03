@@ -49,6 +49,8 @@ function MOD:Load(entity, data)
 
 end
 
+local LerpLinear = SMH.LerpLinear
+
 function MOD:LoadBetween(entity, data1, data2, percentage)
 
     if self:IsEffect(entity) then
@@ -58,14 +60,14 @@ function MOD:LoadBetween(entity, data1, data2, percentage)
     local count = entity:GetFlexNum();
     if count <= 0 then return; end --Shouldn't happen, but meh
 
-    local scale = SMH.LerpLinear(data1.Scale, data2.Scale, percentage);
+    local scale = LerpLinear(data1.Scale, data2.Scale, percentage);
     entity:SetFlexScale(scale);
 
     for i = 0, count - 1 do
 
         local w1 = data1.Weights[i];
         local w2 = data2.Weights[i];
-        local w = SMH.LerpLinear(w1, w2, percentage);
+        local w = LerpLinear(w1, w2, percentage);
 
         entity:SetFlexWeight(i, w);
 

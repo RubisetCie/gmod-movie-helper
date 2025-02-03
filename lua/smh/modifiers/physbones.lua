@@ -90,6 +90,9 @@ function MOD:LoadGhost(entity, ghost, data)
 
 end
 
+local LerpLinearAngle = SMH.LerpLinearAngle
+local LerpLinearVector = SMH.LerpLinearVector
+
 function MOD:LoadGhostBetween(entity, ghost, data1, data2, percentage)
 
     local count = ghost:GetPhysicsObjectCount();
@@ -101,8 +104,8 @@ function MOD:LoadGhostBetween(entity, ghost, data1, data2, percentage)
         local d1 = data1[i];
         local d2 = data2[i];
 
-        local Pos = SMH.LerpLinearVector(d1.Pos, d2.Pos, percentage);
-        local Ang = SMH.LerpLinearAngle(d1.Ang, d2.Ang, percentage);
+        local Pos = LerpLinearVector(d1.Pos, d2.Pos, percentage);
+        local Ang = LerpLinearAngle(d1.Ang, d2.Ang, percentage);
 
         pb:EnableMotion(false);
             pb:SetPos(Pos);
@@ -127,8 +130,8 @@ function MOD:LoadBetween(entity, data1, data2, percentage, settings)
         local d1 = data1[i];
         local d2 = data2[i];
 
-        local Pos = SMH.LerpLinearVector(d1.Pos, d2.Pos, percentage);
-        local Ang = SMH.LerpLinearAngle(d1.Ang, d2.Ang, percentage);
+        local Pos = LerpLinearVector(d1.Pos, d2.Pos, percentage);
+        local Ang = LerpLinearAngle(d1.Ang, d2.Ang, percentage);
 
         if settings.FreezeAll then
             pb:EnableMotion(false);

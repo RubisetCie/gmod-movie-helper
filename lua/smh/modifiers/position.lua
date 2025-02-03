@@ -25,10 +25,13 @@ function MOD:Load(entity, data)
 
 end
 
+local LerpLinearAngle = SMH.LerpLinearAngle
+local LerpLinearVector = SMH.LerpLinearVector
+
 function MOD:LoadBetween(entity, data1, data2, percentage)
 
-    local Pos = SMH.LerpLinearVector(data1.Pos, data2.Pos, percentage);
-    local Ang = SMH.LerpLinearAngle(data1.Ang, data2.Ang, percentage);
+    local Pos = LerpLinearVector(data1.Pos, data2.Pos, percentage);
+    local Ang = LerpLinearAngle(data1.Ang, data2.Ang, percentage);
 
     entity:SetPos(Pos);
     entity:SetAngles(Ang);
