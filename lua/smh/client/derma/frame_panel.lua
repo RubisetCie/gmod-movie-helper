@@ -1,6 +1,6 @@
 local PANEL = {}
+local SMH = SMH
 
-local IsPlaying = SMH.Controller.IsPlaying
 local surface = surface
 local math = math
 
@@ -70,7 +70,7 @@ function PANEL:Paint(width, height)
     local startX, endX = unpack(self.FrameArea)
     local frameWidth = (endX - startX) / (self.Zoom - 1)
 
-    if not IsPlaying() then
+    if not SMH.Controller.IsPlaying() then
         local cycle = 0
         for i = 0, self.Zoom - 1 do
             local frame = self.ScrollOffset + i

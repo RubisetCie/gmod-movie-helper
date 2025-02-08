@@ -2,6 +2,19 @@ local InOutQuad = math.ease.InOutQuad
 local InQuad = math.ease.InQuad
 local OutQuad = math.ease.OutQuad
 
+function SMH.ApplyLinearEasing(prevEase, nextEase, lerp)
+    local nextIn = nextEase == 2 or nextEase == 3
+    local prevOut = prevEase == 1 or prevEase == 3
+    if prevOut and nextIn then
+        return InOutQuad(lerp)
+    elseif prevOut then
+        return InQuad(lerp)
+    elseif nextIn then
+        return OutQuad(lerp)
+    end
+    return lerp
+end
+
 function SMH.GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     local prevKeyframe = nil
     local nextKeyframe = nil
@@ -20,7 +33,7 @@ function SMH.GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     end
 
     if not prevKeyframe and not nextKeyframe then
-        return nil, nil, 0
+        return nil, nil
     elseif not prevKeyframe then
         prevKeyframe = nextKeyframe
     elseif not nextKeyframe then
@@ -30,26 +43,44 @@ function SMH.GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
     return prevKeyframe, nextKeyframe
 end
 
-local GetBetweenKeyframes = SMH.GetBetweenKeyframes
-function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
-    local prevKeyframe, nextKeyframe = GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
-    local lerpMultiplier = 0
-    if prevKeyframe.Frame ~= nextKeyframe.Frame then
-        lerpMultiplier = (frame - prevKeyframe.Frame) / (nextKeyframe.Frame - prevKeyframe.Frame)
-        local prevEase = prevKeyframe.Ease[modname]
-        local nextEase = nextKeyframe.Ease[modname]
-        local nextIn = nextEase == 2 or nextEase == 3
-        local prevOut = prevEase == 1 or prevEase == 3
-        if prevOut and nextIn then
-            lerpMultiplier = InOutQuad(lerpMultiplier)
-        elseif prevOut then
-            lerpMultiplier = InQuad(lerpMultiplier)
-        elseif nextIn then
-            lerpMultiplier = OutQuad(lerpMultiplier)
+function SMH.GetSurroundKeyframes(keyframes, prevKeyframe, prevEase, nextKeyframe, nextEase, modname)
+    local anteKeyframe = nil
+    local postKeyframe = nil
+    for _, keyframe in pairs(keyframes) do
+        if keyframe.Frame < prevKeyframe.Frame and (not anteKeyframe or anteKeyframe.Frame < keyframe.Frame) and keyframe.Modifiers[modname] then
+            anteKeyframe = keyframe
+        elseif keyframe.Frame > nextKeyframe.Frame and (not postKeyframe or postKeyframe.Frame > keyframe.Frame) and keyframe.Modifiers[modname] then
+            postKeyframe = keyframe
         end
     end
+    -- Correct the surrounding keyframes depending on the ease
+    if prevEase == 1 then
+        anteKeyframe = nextKeyframe
+    elseif prevEase < 4 or anteKeyframe == nil then
+        anteKeyframe = prevKeyframe
+    end
+    if nextEase == 2 then
+        postKeyframe = prevKeyframe
+    elseif nextEase < 4 or postKeyframe == nil then
+        postKeyframe = nextKeyframe
+    end
 
-    return prevKeyframe, nextKeyframe, lerpMultiplier
+    return anteKeyframe, postKeyframe
+end
+
+local GetBetweenKeyframes = SMH.GetBetweenKeyframes
+
+function SMH.GetClosestKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
+    local prevKeyframe, nextKeyframe = GetBetweenKeyframes(keyframes, frame, ignoreCurrentFrame, modname)
+    if not prevKeyframe then
+        return nil, nil, 0
+    end
+    local lerp = 0
+    if prevKeyframe.Frame ~= nextKeyframe.Frame then
+        lerp = (frame - prevKeyframe.Frame) / (nextKeyframe.Frame - prevKeyframe.Frame)
+    end
+
+    return prevKeyframe, nextKeyframe, lerp
 end
 
 local META = {}

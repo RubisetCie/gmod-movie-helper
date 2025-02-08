@@ -1,45 +1,53 @@
 
-MOD.Name = "Bodygroup";
+MOD.Name = "Bodygroup"
 
 function MOD:Save(entity)
 
     if self:IsEffect(entity) then
-        entity = entity.AttachedEntity;
+        entity = entity.AttachedEntity
     end
 
-    local data = {};
-    local bgs = entity:GetBodyGroups();
+    local data = {}
+    local bgs = entity:GetBodyGroups()
     for _, bg in pairs(bgs) do
-        data[bg.id] = entity:GetBodygroup(bg.id);
+        data[bg.id] = entity:GetBodygroup(bg.id)
     end
-    return data;
+    return data
 end
 
 function MOD:LoadGhost(entity, ghost, data)
-    self:Load(ghost, data);
+    self:Load(ghost, data)
 end
 
 function MOD:LoadGhostBetween(entity, ghost, data1, data2, percentage)
-    self:LoadBetween(ghost, data1, data2, percentage);
+    self:LoadBetween(ghost, data1, data2, percentage)
+end
+
+function MOD:LoadGhostInterpolated(entity, ghost, _, data1, data2, _, percentage)
+    self:LoadBetween(ghost, data1, data2, percentage)
 end
 
 function MOD:Load(entity, data)
 
     if self:IsEffect(entity) then
-        entity = entity.AttachedEntity;
+        entity = entity.AttachedEntity
     end
 
     for id, value in pairs(data) do
-        entity:SetBodygroup(id, value);
+        entity:SetBodygroup(id, value)
     end
 end
 
 function MOD:LoadBetween(entity, data1, data2, percentage)
 
     if self:IsEffect(entity) then
-        entity = entity.AttachedEntity;
+        entity = entity.AttachedEntity
     end
 
-    self:Load(entity, data1);
+    self:Load(entity, data1)
 
+end
+
+function MOD:LoadInterpolated(entity, _, data1, data2, _, percentage)
+    self:LoadBetween(entity, data1, data2, percentage)
 end

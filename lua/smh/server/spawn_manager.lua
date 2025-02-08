@@ -52,8 +52,8 @@ end
 local function SetOffset(player, modname, keyframe, pos)
     local mod = SMH.Modifiers[modname]
 
-    local offsetpos = MGR.OffsetPos[player] or Vector(0, 0, 0)
-    local offsetang = MGR.OffsetAng[player] or Angle(0, 0, 0)
+    local offsetpos = MGR.OffsetPos[player] or vector_origin
+    local offsetang = MGR.OffsetAng[player] or angle_zero
 
     keyframe.Modifiers[modname] = mod:Offset(keyframe.Modifiers[modname], MGR.OriginData[player][modname].Modifiers, offsetpos, offsetang, pos)
 end
@@ -69,7 +69,7 @@ function MGR.SetPreviewEntity(path, model, player, serializedKeyframes)
     local class, modelpath, data = GetPosData(serializedKeyframes, model)
     local neworigin = false
     if not class then
-        player:ChatPrint("Stop Motion Helper: Failed to get entity info. Probably you're trying to load world entity, or the save is from older SMH version!")
+        player:ChatPrint("Rubis Movie Helper: Failed to get entity info. Probably you're trying to load world entity, or the save is from older SMH version!")
         return nil
     end
 
@@ -91,18 +91,18 @@ function MGR.Spawn(model, settings, player, serializedKeyframes)
     if not Active[player] then return end
     local class, modelpath, data = GetPosData(serializedKeyframes, model)
     if not class then
-        player:ChatPrint("Stop Motion Helper: Failed to get entity info. Probably you're trying to load world entity, or the save is from older SMH version!")
+        player:ChatPrint("Rubis Movie Helper: Failed to get entity info. Probably you're trying to load world entity, or the save is from older SMH version!")
         return
     end
 
     if IsValid(player) and not player:CheckLimit("smhentity") then return end
 
     if class == "prop_ragdoll" and not data["physbones"] then
-        player:ChatPrint("Stop Motion Helper: Can't spawn the ragdoll as the save doesn't have Physical Bones modifier!")
+        player:ChatPrint("Rubis Movie Helper: Can't spawn the ragdoll as the save doesn't have Physical Bones modifier!")
         return
     end
     if not data["physbones"] and not data["position"] then
-        player:ChatPrint("Stop Motion Helper: Can't spawn the entity as the save doesn't have Physical Bones or Position and Rotation modifiers!")
+        player:ChatPrint("Rubis Movie Helper: Can't spawn the entity as the save doesn't have Physical Bones or Position and Rotation modifiers!")
         return
     end
 
@@ -126,8 +126,8 @@ function MGR.Spawn(model, settings, player, serializedKeyframes)
     for name, mod in pairs(SMH.Modifiers) do
         if not data[name] then continue end
         if data[name] and MGR.OriginData[player][name] and (name == "physbones" or name == "position") then
-            local offsetpos = MGR.OffsetPos[player] or Vector(0, 0, 0)
-            local offsetang = MGR.OffsetAng[player] or Angle(0, 0, 0)
+            local offsetpos = MGR.OffsetPos[player] or vector_origin
+            local offsetang = MGR.OffsetAng[player] or angle_zero
 
             offsetdata = mod:Offset(data[name].Modifiers, MGR.OriginData[player][name].Modifiers, offsetpos, offsetang, tracepos)
             mod:Load(entity, offsetdata, settings)
@@ -178,7 +178,7 @@ end
 function MGR.SetOrigin(model, player, serializedKeyframes)
     local class, modelpath, data = GetPosData(serializedKeyframes, model)
     if not class then
-        player:ChatPrint("Stop Motion Helper: Failed to get entity info. Probably you're trying to load world entity, or the save is from older SMH version!")
+        player:ChatPrint("Rubis Movie Helper: Failed to get entity info. Probably you're trying to load world entity, or the save is from older SMH version!")
         return nil
     end
 

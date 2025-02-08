@@ -8,6 +8,8 @@ local IsValid = IsValid
 local vector_origin = vector_origin
 local angle_zero = angle_zero
 
+local SMH = SMH
+
 local function CreateGhost(player, entity, color, frame, ghostable)
     for _, ghost in ipairs(GhostData[player].Ghosts) do
         if ghost.Entity == entity and ghost.Frame == frame then return ghost end -- we already have a ghost on this entity for this frame, just return it.
@@ -21,8 +23,8 @@ local function CreateGhost(player, entity, color, frame, ghostable)
         g = ents.Create("prop_ragdoll")
 
         local flags = entity:GetSaveTable().spawnflags or 0
-        if flags % (2 * 32768) >= 32768 then
-            g:SetKeyValue("spawnflags",32768)
+        if flags % 65536 >= 32768 then
+            g:SetKeyValue("spawnflags", 32768)
             g:SetSaveValue("m_ragdoll.allowStretch", true)
         end
     else
@@ -54,17 +56,18 @@ local function CreateGhost(player, entity, color, frame, ghostable)
 end
 
 local function SetGhostFrame(entity, ghost, modifiers, modname)
-    if modifiers[modname] ~= nil then
-        SMH.Modifiers[modname]:LoadGhost(entity, ghost, modifiers[modname])
-        if modname == "physbones" then ghost.Physbones = true end
-    end
+    SMH.Modifiers[modname]:LoadGhost(entity, ghost, modifiers[modname])
+    if modname == "physbones" then ghost.Physbones = true end
 end
 
 local function SetGhostBetween(entity, ghost, data1, data2, modname, percentage)
-    if data1[modname] ~= nil then
-        SMH.Modifiers[modname]:LoadGhostBetween(entity, ghost, data1[modname], data2[modname], percentage)
-        if modname == "physbones" then ghost.Physbones = true end
-    end
+    SMH.Modifiers[modname]:LoadGhostBetween(entity, ghost, data1[modname], data2[modname], percentage)
+    if modname == "physbones" then ghost.Physbones = true end
+end
+
+local function SetGhostInterpolated(entity, ghost, befdata1, data1, data2, aftdata2, modname, percentage)
+    SMH.Modifiers[modname]:LoadGhostInterpolated(entity, ghost, befdata1[modname], data1[modname], data2[modname], aftdata2[modname], percentage)
+    if modname == "physbones" then ghost.Physbones = true end
 end
 
 local function ClearNoPhysGhosts(ghosts)
@@ -141,7 +144,7 @@ function MGR.UpdateState(player, frame, settings, timeline, settimeline)
 
         for name, _ in pairs(filtermods) do -- gonna apply used modifiers
             local prevKeyframe, nextKeyframe, lerpMultiplier = SMH.GetClosestKeyframes(keyframes, frame, true, name)
-            if not prevKeyframe and not nextKeyframe then
+            if not prevKeyframe then
                 continue
             end
 
@@ -200,7 +203,15 @@ function MGR.UpdateState(player, frame, settings, timeline, settimeline)
                     elseif lerpMultiplier >= 1 then
                         SetGhostFrame(entity, g, nextKeyframe.Modifiers, name)
                     else
-                        SetGhostBetween(entity, g, prevKeyframe.Modifiers, nextKeyframe.Modifiers, name, lerpMultiplier)
+                        local prevEase = prevKeyframe.Ease[name]
+                        local nextEase = nextKeyframe.Ease[name]
+                        if prevEase > 3 or nextEase > 3 then
+                            local anteKeyframe, postKeyframe = SMH.GetSurroundKeyframes(keyframes, prevKeyframe, prevEase, nextKeyframe, nextEase, name)
+                            SetGhostInterpolated(entity, g, anteKeyframe.Modifiers, prevKeyframe.Modifiers, nextKeyframe.Modifiers, postKeyframe.Modifiers, name, lerpMultiplier)
+                        else
+                            lerpMultiplier = SMH.ApplyLinearEasing(prevEase, nextEase, lerpMultiplier)
+                            SetGhostBetween(entity, g, prevKeyframe.Modifiers, nextKeyframe.Modifiers, name, lerpMultiplier)
+                        end
                     end
                 end
             end
@@ -222,11 +233,11 @@ function MGR.SetSpawnPreview(class, modelpath, data, settings, player)
     SpawnGhostData[player] = nil
 
     if class == "prop_ragdoll" and not data["physbones"] then
-        player:ChatPrint("Stop Motion Helper: Can't set preview for the ragdoll as the save doesn't have Physical Bones modifier!")
+        player:ChatPrint("Rubis Movie Helper: Can't set preview for the ragdoll as the save doesn't have Physical Bones modifier!")
         return
     end
     if not data["physbones"] and not data["position"] then
-        player:ChatPrint("Stop Motion Helper: Can't set preview for the entity as the save doesn't have Physical Bones or Position and Rotation modifiers!")
+        player:ChatPrint("Rubis Movie Helper: Can't set preview for the entity as the save doesn't have Physical Bones or Position and Rotation modifiers!")
         return
     end
 

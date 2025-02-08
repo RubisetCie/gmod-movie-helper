@@ -1,14 +1,11 @@
 local ActivePlaybacks = {}
 
+local MGR = {}
+local SMH = SMH
+
 local math = math
 local pairs = pairs
 local FrameTime = FrameTime
-local InOutQuad = math.ease.InOutQuad
-local InQuad = math.ease.InQuad
-local OutQuad = math.ease.OutQuad
-
-local SMH = SMH
-local MGR = {}
 
 local function PlaybackSmooth(player, playback, settings)
     if not SMH.KeyframeData.Players[player] then
@@ -34,24 +31,19 @@ local function PlaybackSmooth(player, playback, settings)
 
                 if prevKeyframe.Frame == nextKeyframe.Frame then
                     if prevKeyframe.Modifiers[name] and nextKeyframe.Modifiers[name] then
-                        mod:Load(entity, prevKeyframe.Modifiers[name], settings);
+                        mod:Load(entity, prevKeyframe.Modifiers[name], settings)
                     end
                 else
                     local lerpMultiplier = ((playback.Timer + playback.StartFrame * timePerFrame) - prevKeyframe.Frame * timePerFrame) / ((nextKeyframe.Frame - prevKeyframe.Frame) * timePerFrame)
                     local nextEase = nextKeyframe.Ease[name]
                     local prevEase = prevKeyframe.Ease[name]
-                    local nextIn = nextEase == 2 or nextEase == 3
-                    local prevOut = prevEase == 1 or prevEase == 3
-                    if prevOut and nextIn then
-                        lerpMultiplier = InOutQuad(lerpMultiplier)
-                    elseif prevOut then
-                        lerpMultiplier = InQuad(lerpMultiplier)
-                    elseif nextIn then
-                        lerpMultiplier = OutQuad(lerpMultiplier)
-                    end
 
-                    if prevKeyframe.Modifiers[name] and nextKeyframe.Modifiers[name] then
-                        mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings);
+                    if prevEase > 3 or nextEase > 3 then
+                        local anteKeyframe, postKeyframe = SMH.GetSurroundKeyframes(keyframes, prevKeyframe, prevEase, nextKeyframe, nextEase, name)
+                        mod:LoadInterpolated(entity, anteKeyframe.Modifiers[name], prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], postKeyframe.Modifiers[name], lerpMultiplier, settings)
+                    else
+                        lerpMultiplier = SMH.ApplyLinearEasing(prevEase, nextEase, lerpMultiplier)
+                        mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings)
                     end
                 end
             end
@@ -77,11 +69,19 @@ function MGR.SetFrame(player, newFrame, settings)
                 end
 
                 if lerpMultiplier <= 0 or settings.TweenDisable then
-                    mod:Load(entity, prevKeyframe.Modifiers[name], settings);
+                    mod:Load(entity, prevKeyframe.Modifiers[name], settings)
                 elseif lerpMultiplier >= 1 then
-                    mod:Load(entity, nextKeyframe.Modifiers[name], settings);
+                    mod:Load(entity, nextKeyframe.Modifiers[name], settings)
                 else
-                    mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings);
+                    local prevEase = prevKeyframe.Ease[name]
+                    local nextEase = nextKeyframe.Ease[name]
+                    if prevEase > 3 or nextEase > 3 then
+                        local anteKeyframe, postKeyframe = SMH.GetSurroundKeyframes(keyframes, prevKeyframe, prevEase, nextKeyframe, nextEase, name)
+                        mod:LoadInterpolated(entity, anteKeyframe.Modifiers[name], prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], postKeyframe.Modifiers[name], lerpMultiplier, settings)
+                    else
+                        lerpMultiplier = SMH.ApplyLinearEasing(prevEase, nextEase, lerpMultiplier)
+                        mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings)
+                    end
                 end
             end
         else
@@ -106,11 +106,19 @@ function MGR.SetFrameIgnore(player, newFrame, settings, ignored)
             end
 
             if lerpMultiplier <= 0 or settings.TweenDisable then
-                mod:Load(entity, prevKeyframe.Modifiers[name], settings);
+                mod:Load(entity, prevKeyframe.Modifiers[name], settings)
             elseif lerpMultiplier >= 1 then
-                mod:Load(entity, nextKeyframe.Modifiers[name], settings);
+                mod:Load(entity, nextKeyframe.Modifiers[name], settings)
             else
-                mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings);
+                local prevEase = prevKeyframe.Ease[name]
+                local nextEase = nextKeyframe.Ease[name]
+                if prevEase > 3 or nextEase > 3 then
+                    local anteKeyframe, postKeyframe = SMH.GetSurroundKeyframes(keyframes, prevKeyframe, prevEase, nextKeyframe, nextEase, name)
+                    mod:LoadInterpolated(entity, anteKeyframe.Modifiers[name], prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], postKeyframe.Modifiers[name], lerpMultiplier, settings)
+                else
+                    lerpMultiplier = SMH.ApplyLinearEasing(prevEase, nextEase, lerpMultiplier)
+                    mod:LoadBetween(entity, prevKeyframe.Modifiers[name], nextKeyframe.Modifiers[name], lerpMultiplier, settings)
+                end
             end
         end
     end

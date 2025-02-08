@@ -4,8 +4,8 @@ local file = file
 local util = util
 
 local function GetModelName(entity)
-    local mdl = string.Split(entity:GetModel(), "/");
-    mdl = mdl[#mdl];
+    local mdl = string.Split(entity:GetModel(), "/")
+    mdl = mdl[#mdl]
 
     return mdl
 end
@@ -291,7 +291,7 @@ function MGR.CopyIfExists(pathFrom, pathTo, player)
     pathTo = SaveDir .. (PlayerPath[player] or "") .. pathTo .. ".txt"
 
     if file.Exists(pathFrom, "DATA") then
-        file.Write(pathTo, file.Read(pathFrom));
+        file.Write(pathTo, file.Read(pathFrom))
     end
 end
 

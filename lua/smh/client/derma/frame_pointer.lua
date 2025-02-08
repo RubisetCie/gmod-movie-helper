@@ -1,14 +1,14 @@
 --[[
     TODO move control key logic elsewhere
 
-    local leftMousePressStream = mousePressStream:filter(function(mousecode) return mousecode == MOUSE_LEFT end);
-    local leftMouseReleaseStream = mouseReleaseStream:filter(function(mousecode) return mousecode == MOUSE_LEFT end);
+    local leftMousePressStream = mousePressStream:filter(function(mousecode) return mousecode == MOUSE_LEFT end)
+    local leftMouseReleaseStream = mouseReleaseStream:filter(function(mousecode) return mousecode == MOUSE_LEFT end)
     local rightMousePressStream = mousePressStream
-        :filter(function(mousecode) return mousecode == MOUSE_RIGHT and not input.IsKeyDown(KEY_LCONTROL) end);
+        :filter(function(mousecode) return mousecode == MOUSE_RIGHT and not input.IsKeyDown(KEY_LCONTROL) end)
     local middleMousePressStream = mousePressStream
-        :filter(function(mousecode) return mousecode == MOUSE_MIDDLE or (mousecode == MOUSE_RIGHT and input.IsKeyDown(KEY_LCONTROL)) end);
+        :filter(function(mousecode) return mousecode == MOUSE_MIDDLE or (mousecode == MOUSE_RIGHT and input.IsKeyDown(KEY_LCONTROL)) end)
     local middleMouseReleaseStream = mouseReleaseStream
-        :filter(function(mousecode) return mousecode == MOUSE_MIDDLE or (mousecode == MOUSE_RIGHT and input.IsKeyDown(KEY_LCONTROL)) end);
+        :filter(function(mousecode) return mousecode == MOUSE_MIDDLE or (mousecode == MOUSE_RIGHT and input.IsKeyDown(KEY_LCONTROL)) end)
 ]]
 
 local PANEL = {}

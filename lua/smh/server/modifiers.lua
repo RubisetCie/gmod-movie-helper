@@ -7,6 +7,8 @@ function MODBASE:Load(entity, data, settings) end
 function MODBASE:LoadGhost(entity, ghost, data, settings) end
 function MODBASE:LoadBetween(entity, data1, data2, percentage, settings) end
 function MODBASE:LoadGhostBetween(entity, ghost, data1, data2, percentage, settings) end
+function MODBASE:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percentage, settings) end
+function MODBASE:LoadGhostInterpolated(entity, ghost, befdata1, data1, data2, aftdata2, percentage, settings) end
 function MODBASE:Offset(data, origindata, worldvector, worldangle, offsetpos, offsetang) end
 function MODBASE:OffsetDupe(entity, data, origindata) end
 

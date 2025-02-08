@@ -15,8 +15,8 @@ local ShadowColour = Color(25, 25, 25)
 local RoundedBox = draw.RoundedBox
 
 local function GetModelName(entity)
-    local mdl = string.Split(entity:GetModel(), "/");
-    mdl = mdl[#mdl];
+    local mdl = string.Split(entity:GetModel(), "/")
+    mdl = mdl[#mdl]
     return mdl
 end
 

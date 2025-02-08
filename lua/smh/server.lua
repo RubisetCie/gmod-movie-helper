@@ -18,17 +18,17 @@ AddCSLuaFile("client.lua")
 
 local file = file
 local function FindRecursive(name, path, func)
-    local files, dirs = file.Find(name .. "/*", path);
+    local files, dirs = file.Find(name .. "/*", path)
     for _, dir in pairs(dirs) do
-        FindRecursive(name .. "/" .. dir, path, func);
+        FindRecursive(name .. "/" .. dir, path, func)
     end
     for _, f in pairs(files) do
-        func(name .. "/" .. f);
+        func(name .. "/" .. f)
     end
 end
 
 local function AddCSPath(path)
-    AddCSLuaFile(path);
+    AddCSLuaFile(path)
 end
 
 FindRecursive("smh/shared", "LUA", AddCSPath)
