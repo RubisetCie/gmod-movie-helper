@@ -194,7 +194,7 @@ function MOD:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percenta
         local d2 = data2[i]
         local d3 = aftdata2[i]
 
-        local Pos = Spline(d0.Posn d1.Pos, d2.Pos, d3.Pos, percentage)
+        local Pos = Spline(d0.Pos, d1.Pos, d2.Pos, d3.Pos, percentage)
         local Ang = SplineAngle(d0.Ang, d1.Ang, d2.Ang, d3.Ang, percentage)
 
         if settings.FreezeAll then
