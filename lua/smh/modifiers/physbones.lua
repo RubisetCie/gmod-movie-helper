@@ -177,7 +177,7 @@ function MOD:LoadGhostInterpolated(entity, ghost, befdata1, data1, data2, aftdat
     end
 end
 
-function MOD:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percentage)
+function MOD:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percentage, settings)
 
     if settings.IgnorePhysBones then
         return
