@@ -1,7 +1,9 @@
 
 MOD.Name = "Physical Bones"
 
+local FromTable = FromTable
 local ToQuatern = ToQuatern
+local ToAngle = ToAngle
 
 function MOD:Save(entity)
 
@@ -34,6 +36,21 @@ function MOD:Save(entity)
 
 end
 
+function MOD:Init(entity, data)
+
+    local count = entity:GetPhysicsObjectCount()
+
+    for i = 0, count - 1 do
+
+        local d = data[i]
+        if d.Ang ~= nil then
+            d.Ang = FromTable(d.Ang)
+        end
+
+    end
+
+end
+
 function MOD:Load(entity, data, settings)
 
     if settings.IgnorePhysBones then
@@ -55,7 +72,7 @@ function MOD:Load(entity, data, settings)
             pb:SetAngles(ang)
         else
             pb:SetPos(d.Pos)
-            pb:SetAngles(d.Ang:Angle())
+            pb:SetAngles(ToAngle(d.Ang))
         end
 
         if settings.FreezeAll then
@@ -83,7 +100,7 @@ function MOD:LoadGhost(entity, ghost, data)
 
         local d = data[i]
         pb:SetPos(d.Pos)
-        pb:SetAngles(d.Ang:Angle())
+        pb:SetAngles(ToAngle(d.Ang))
 
         pb:EnableMotion(false)
         pb:Wake()
@@ -111,7 +128,7 @@ function MOD:LoadGhostBetween(entity, ghost, data1, data2, percentage)
 
         pb:EnableMotion(false)
         pb:SetPos(Pos)
-        pb:SetAngles(Ang:Angle())
+        pb:SetAngles(ToAngle(Ang))
 
         pb:Wake()
 
@@ -142,7 +159,7 @@ function MOD:LoadBetween(entity, data1, data2, percentage, settings)
             pb:EnableMotion(d1.Moveable)
         end
         pb:SetPos(Pos)
-        pb:SetAngles(Ang:Angle())
+        pb:SetAngles(ToAngle(Ang))
 
         pb:Wake()
     end
@@ -170,7 +187,7 @@ function MOD:LoadGhostInterpolated(entity, ghost, befdata1, data1, data2, aftdat
 
         pb:EnableMotion(false)
         pb:SetPos(Pos)
-        pb:SetAngles(Ang:Angle())
+        pb:SetAngles(ToAngle(Ang))
 
         pb:Wake()
 
@@ -203,7 +220,7 @@ function MOD:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percenta
             pb:EnableMotion(d1.Moveable)
         end
         pb:SetPos(Pos)
-        pb:SetAngles(Ang:Angle())
+        pb:SetAngles(ToAngle(Ang))
 
         pb:Wake()
     end
@@ -221,7 +238,7 @@ function MOD:Offset(data, origindata, worldvector, worldangle, hitpos)
     for id, kdata in pairs(data) do
 
         local d = {}
-        local Pos, Ang = WorldToLocal(kdata.Pos, kdata.Ang:Angle(), origindata[0].Pos, angle_zero)
+        local Pos, Ang = WorldToLocal(kdata.Pos, ToAngle(kdata.Ang), origindata[0].Pos, angle_zero)
         Pos, Ang = LocalToWorld(Pos, Ang, worldvector, worldangle)
         d.Pos = Pos + hitpos
         d.Ang = ToQuatern(Ang)
@@ -250,7 +267,7 @@ function MOD:OffsetDupe(entity, data, origindata)
     for id, kdata in pairs(data) do
 
         local d = {}
-        local Pos, Ang = WorldToLocal(kdata.Pos, kdata.Ang:Angle(), origindata[0].Pos, origindata[0].Ang)
+        local Pos, Ang = WorldToLocal(kdata.Pos, ToAngle(kdata.Ang), origindata[0].Pos, origindata[0].Ang)
         Pos, Ang = LocalToWorld(Pos, Ang, entPos, entAng)
         d.Pos = Pos
         d.Ang = ToQuatern(Ang)

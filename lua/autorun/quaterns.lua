@@ -1,7 +1,4 @@
-local QUATERNION = {
-    __epsl = 0.0001,
-    __lerp = 0.9995
-}
+local QUATERNION = {}
 QUATERNION.__index = QUATERNION
 
 local metatable = setmetatable
@@ -14,6 +11,7 @@ local abs = math.abs
 local acos = math.acos
 local asin = math.asin
 local atan2 = math.atan2
+local clamp = math.Clamp
 
 local function Quatern(obj)
     return metatable({ w = obj.w, x = obj.x, y = obj.y, z = obj.z }, QUATERNION)
@@ -30,6 +28,8 @@ function ToQuatern(ang)
     local cosy = cos(y)
     local sinr = sin(r)
     local cosr = cos(r)
+    local cpcy = cosp * cosy;
+    local spsy = sinp * siny;
 
     return metatable({
         w = cosr * cosp * cosy + sinr * sinp * siny,
@@ -37,6 +37,21 @@ function ToQuatern(ang)
         y = cosr * sinp * cosy + sinr * cosp * siny,
         z = cosr * cosp * siny - sinr * sinp * cosy
     }, QUATERNION)
+end
+
+function ToAngle(obj)
+
+    local qx = obj.x * obj.x
+    local qy = obj.y * obj.y
+    local qz = obj.z * obj.z
+    return Angle(
+        deg(asin(clamp(2.0 * (obj.w * obj.y - obj.z * obj.x), -1.0, 1.0))),
+        deg(atan2(2.0 * (obj.w * obj.z + obj.x * obj.y), 1.0 - 2.0 * (qy + qz))),
+        deg(atan2(2.0 * (obj.w * obj.x + obj.y * obj.z), 1.0 - 2.0 * (qx + qy))))
+end
+
+function FromTable(tab)
+    return Quatern(tab)
 end
 
 function LerpQuaternion(q, p, alpha)
@@ -115,26 +130,14 @@ function QUATERNION:SLerp(q, alpha)
         dot = -dot
     end
 
-    if (dot < self.__lerp) then
+    if (dot < 0.9995) then
 
         local theta = acos(dot)
-        local thetaInv = abs(theta) < self.__epsl && 1.0 || (1.0 / sin(theta))
+        local thetaInv = abs(theta) < 0.0001 && 1.0 || (1.0 / sin(theta))
 
         alphaStart = sin((1.0 - alpha) * theta) * thetaInv
         alphaEnd = sin(alpha * theta) * thetaInv
     end
 
     return self:LerpDomain(ref, alphaStart, alphaEnd)
-end
-
-function QUATERNION:Angle()
-
-    local qx = self.x * self.x
-    local qy = self.y * self.y
-    local qz = self.z * self.z
-
-    return Angle(
-        deg(asin(2.0 * (self.w * self.y - self.z * self.x))),
-        deg(atan2(2.0 * (self.w * self.z + self.x * self.y), 1.0 - 2.0 * (qy + qz))),
-        deg(atan2(2.0 * (self.w * self.x + self.y * self.z), 1.0 - 2.0 * (qx + qy))))
 end

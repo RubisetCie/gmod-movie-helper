@@ -1,7 +1,9 @@
 
 MOD.Name = "Position and Rotation"
 
+local FromTable = FromTable
 local ToQuatern = ToQuatern
+local ToAngle = ToAngle
 
 function MOD:Save(entity)
 
@@ -27,8 +29,12 @@ end
 function MOD:Load(entity, data)
 
     entity:SetPos(data.Pos)
-    entity:SetAngles(data.Ang:Angle())
+    entity:SetAngles(ToAngle(data.Ang))
 
+end
+
+function MOD:Init(entity, data)
+    data.Ang = FromTable(data.Ang)
 end
 
 local LerpLinearAngle = SMH.LerpLinearAngle
@@ -40,7 +46,7 @@ function MOD:LoadBetween(entity, data1, data2, percentage)
     local Ang = LerpLinearAngle(data1.Ang, data2.Ang, percentage)
 
     entity:SetPos(Pos)
-    entity:SetAngles(Ang:Angle())
+    entity:SetAngles(ToAngle(Ang))
 
 end
 
@@ -53,7 +59,7 @@ function MOD:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percenta
     local Ang = SplineAngle(befdata1.Ang, data1.Ang, data2.Ang, aftdata2.Ang, percentage)
 
     entity:SetPos(Pos)
-    entity:SetAngles(Ang:Angle())
+    entity:SetAngles(ToAngle(Ang))
 
 end
 
@@ -64,7 +70,7 @@ function MOD:Offset(data, origindata, worldvector, worldangle, hitpos)
     end
 
     local datanew = {}
-    local Pos, Ang = WorldToLocal(data.Pos, data.Ang:Angle(), origindata.Pos, angle_zero)
+    local Pos, Ang = WorldToLocal(data.Pos, ToAngle(data.Ang), origindata.Pos, angle_zero)
     Pos, Ang = LocalToWorld(Pos, Ang, worldvector, worldangle)
     datanew.Pos = Pos + hitpos
     datanew.Ang = ToQuatern(Ang)
@@ -76,7 +82,7 @@ function MOD:OffsetDupe(entity, data, origindata)
 
     local entPos, entAng = entity:GetPos(), entity:GetAngles()
     local datanew = {}
-    local Pos, Ang = WorldToLocal(data.Pos, data.Ang:Angle(), origindata.Pos, origindata.Ang)
+    local Pos, Ang = WorldToLocal(data.Pos, ToAngle(data.Ang), origindata.Pos, origindata.Ang)
     Pos, Ang = LocalToWorld(Pos, Ang, entPos, entAng)
     datanew.Pos = Pos
     datanew.Ang = ToQuatern(Ang)

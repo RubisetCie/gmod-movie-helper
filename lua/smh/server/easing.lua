@@ -62,6 +62,6 @@ function SMH.SplineAngle(sm, s, e, em, p)
         emr = em:Negated()
     end
 
-    return CubicHermite(sm, sr, er, emr, p)
+    return CubicHermite(sm, sr, er, emr, p):Normalize()
 
 end

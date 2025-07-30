@@ -283,6 +283,9 @@ function MGR.ImportSave(player, entity, serializedKeyframes, entityProperties)
             for name, _ in pairs(skf.EntityData) do
                 keyframe.Ease[name] = type(skf.Ease) == "table" and skf.Ease[name] or skf.Ease
                 keyframe.Modifiers[name] = skf.EntityData[name]
+
+                -- init the properties as the loaded tables from text may not be the correct type
+                SMH.Modifiers[name]:Init(entity, keyframe.Modifiers[name])
             end
         else
             local keyframe = SMH.KeyframeData:New(player, entity)
@@ -290,6 +293,9 @@ function MGR.ImportSave(player, entity, serializedKeyframes, entityProperties)
             for name, _ in pairs(skf.EntityData) do
                 keyframe.Ease[name] = type(skf.Ease) == "table" and skf.Ease[name] or skf.Ease
                 keyframe.Modifiers[name] = skf.EntityData[name]
+
+                -- init the properties as the loaded tables from text may not be the correct type
+                SMH.Modifiers[name]:Init(entity, keyframe.Modifiers[name])
             end
         end
     end

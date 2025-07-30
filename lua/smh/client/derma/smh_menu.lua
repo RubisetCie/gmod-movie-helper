@@ -131,14 +131,14 @@ function PANEL:PerformLayout(width, height)
     sizeX, sizeY = self.EaseControl.Label:GetSize()
     self.EaseControl.Label:SetRelativePos(self.EaseControl, -(sizeX) - 5, 3)
 
-    self.PlayButton:SetPos(width - 430, 2)
+    self.PlayButton:SetPos(width - 450, 2)
     self.PlayButton:SetSize(100, 20)
 
-    self.RecordButton:SetPos(width - 325, 2)
-    self.RecordButton:SetSize(60, 20)
+    self.PropertiesButton:SetPos(width - 345, 2)
+    self.PropertiesButton:SetSize(80, 20)
 
-    self.PropertiesButton:SetPos(width - 260, 2)
-    self.PropertiesButton:SetSize(60, 20)
+    self.RecordButton:SetPos(width - 260, 2)
+    self.RecordButton:SetSize(60, 20)
 
     self.SaveButton:SetPos(width - 195, 2)
     self.SaveButton:SetSize(60, 20)

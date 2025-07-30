@@ -2,6 +2,7 @@ local MODBASE = {}
 MODBASE.__index = MODBASE
 MODBASE.Name = "Unnamed"
 
+function MODBASE:Init(entity, data) end
 function MODBASE:Save(entity) end
 function MODBASE:Load(entity, data, settings) end
 function MODBASE:LoadGhost(entity, ghost, data, settings) end

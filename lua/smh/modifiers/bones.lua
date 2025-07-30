@@ -1,7 +1,9 @@
 
 MOD.Name = "Nonphysical Bones"
 
+local FromTable = FromTable
 local ToQuatern = ToQuatern
+local ToAngle = ToAngle
 
 function MOD:Save(entity)
 
@@ -52,8 +54,25 @@ function MOD:Load(entity, data)
 
         local d = data[b]
         entity:ManipulateBonePosition(b, d.Pos)
-        entity:ManipulateBoneAngles(b, d.Ang:Angle())
+        entity:ManipulateBoneAngles(b, ToAngle(d.Ang))
         entity:ManipulateBoneScale(b, d.Scale)
+
+    end
+
+end
+
+function MOD:Init(entity, data)
+
+    if self:IsEffect(entity) then
+        entity = entity.AttachedEntity
+    end
+
+    local count = entity:GetBoneCount()
+
+    for b = 0, count - 1 do
+
+        local d = data[b]
+        d.Ang = FromTable(d.Ang)
 
     end
 
@@ -81,7 +100,7 @@ function MOD:LoadBetween(entity, data1, data2, percentage)
         local Scale = LerpLinear(d1.Scale, d2.Scale, percentage)
 
         entity:ManipulateBonePosition(b, Pos)
-        entity:ManipulateBoneAngles(b, Ang:Angle())
+        entity:ManipulateBoneAngles(b, ToAngle(Ang))
         entity:ManipulateBoneScale(b, Scale)
 
     end
@@ -110,7 +129,7 @@ function MOD:LoadInterpolated(entity, befdata1, data1, data2, aftdata2, percenta
         local Scale = Spline(d0.Scale, d1.Scale, d2.Scale, d3.Scale, percentage)
 
         entity:ManipulateBonePosition(b, Pos)
-        entity:ManipulateBoneAngles(b, Ang:Angle())
+        entity:ManipulateBoneAngles(b, ToAngle(Ang))
         entity:ManipulateBoneScale(b, Scale)
 
     end
